@@ -401,8 +401,7 @@ def check_knight(position, color):
             moves_list.append(target)
     return moves_list
 
-### PART 7
-# check for valid moves for just selected piece
+
 
         
 # PART 7: Function to handle the logic of getting valid moves for a piece
