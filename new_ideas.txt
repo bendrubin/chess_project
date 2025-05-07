@@ -90,3 +90,28 @@ Game Over Handling: Refine the game_over state and display a message when the ga
 UI and Graphics: Work on enhancing the user interface (UI) to display moves, captured pieces, and game status.
 
 Once you implement and test these features, your chess game will be much more polished and playable! Would you like help with any specific part of the next steps?
+
+
+
+
+✅ Basic AI Structure
+AI evaluates all possible moves for its pieces.
+
+Simulates each move, assigns it a score using evaluation.
+
+Chooses the move with the best score (maximize or minimize depending on color).
+
+Applies the move to the game state.
+
+🧠 Key Functions Needed
+We'll define these core parts:
+
+minimax(...): recursive algorithm
+
+evaluate_board(...): scores a board (e.g., based on material)
+
+get_all_moves(...): gets all legal moves for AI's turn
+
+apply_move_simulation(...): simulates a move without affecting actual board
+
+ai_make_move(...): top-level function to trigger the AI’s move
