@@ -37,3 +37,83 @@ def minimax(board, depth, maximizing_player):
             eval = minimax(new_board, depth - 1, True)
             min_eval = min(min_eval, eval)
         return min_eval
+
+
+
+def check_valid_moves():
+    if turn_step < 2:
+        print(f"Checking valid moves for White. Turn step: {turn_step}")
+        options_list = white_options
+    else:
+        print(f"Checking valid moves for Black. Turn step: {turn_step}")
+        options_list = black_options
+    valid_options = options_list[selection]
+    print(f"Valid moves for selection {selection}: {valid_options}")
+    return valid_options
+
+def check_valid_moves():
+    if turn_step < 2:
+        print(f"Checking valid moves for White. Turn step: {turn_step}")
+        options_list = white_options
+    else:
+        print(f"Checking valid moves for Black. Turn step: {turn_step}")
+        options_list = black_options
+    valid_options = options_list[selection]
+    print(f"Valid moves for selection {selection}: {valid_options}")
+    return valid_options
+
+
+if turn_step == 2:  # Black's turn
+    print(f"Turn step before processing Black's turn: {turn_step}")
+    _, best_move = minimax(depth=3, is_maximizing=True, white_pieces=white_pieces, white_locations=white_locations, black_pieces=black_pieces, black_locations=black_locations)
+    
+    if best_move:
+        piece_index, move = best_move
+        print(f"AI chose move: {best_move}")
+        black_locations[piece_index] = move
+        if move in white_locations:
+            captured_index = white_locations.index(move)
+            captured_piece = white_pieces.pop(captured_index)
+            white_locations.pop(captured_index)
+            captured_pieces_black.append(captured_piece)
+
+        black_options = check_options(black_pieces, black_locations, 'black')
+        white_options = check_options(white_pieces, white_locations, 'white')
+        turn_step = 0  # Switch to White's turn
+        print(f"Turn step after Black's move: {turn_step}")
+
+    # Check if the game is over
+    if game_is_over(white_pieces, black_pieces):
+        print("Game over detected.")
+        game_over = True
+        break
+    
+    
+if turn_step == 2:  # Black's turn
+    print(f"Turn step before processing Black's turn: {turn_step}")
+    _, best_move = minimax(depth=3, is_maximizing=True, white_pieces=white_pieces, white_locations=white_locations, black_pieces=black_pieces, black_locations=black_locations)
+    
+    if best_move:
+        piece_index, move = best_move
+        print(f"AI chose move: {best_move}")
+        black_locations[piece_index] = move
+        if move in white_locations:
+            captured_index = white_locations.index(move)
+            captured_piece = white_pieces.pop(captured_index)
+            white_locations.pop(captured_index)
+            captured_pieces_black.append(captured_piece)
+
+        black_options = check_options(black_pieces, black_locations, 'black')
+        white_options = check_options(white_pieces, white_locations, 'white')
+        turn_step = 0  # Switch to White's turn
+        print(f"Turn step after Black's move: {turn_step}")
+
+    # Check if the game is over
+    if game_is_over(white_pieces, black_pieces):
+        print("Game over detected.")
+        game_over = True
+        break
+    
+    
+    
+    

@@ -115,3 +115,170 @@ get_all_moves(...): gets all legal moves for AI's turn
 apply_move_simulation(...): simulates a move without affecting actual board
 
 ai_make_move(...): top-level function to trigger the AI’s move
+
+
+
+
+
+So AI issues: turn step is not working properly: 
+1 it is stuck at whites turn. line 40
+2 valid_moves: so either not updating properly or the game logic to move to the next move not updating correctly. line 43
+3 most likely because turn_step = 0, it seems to be stuck in an infinate loop because AI is never triggered. 
+other observations: 
+turn_step = 1 is located at line 690, and turn_step = 2 is at line 705. 
+both are inside of the: "elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and not game_over:" statement on line 672
+neither are located anywhere else. 
+
+
+
+Here are the 4 points:
+
+1) Check if click_coords is in white_locations:
+
+2) Ensure the clicked square contains a valid White piece.
+Set selection = white_locations.index(click_coords):
+
+3) Update selection to the index of the selected piece.
+Call valid_moves = check_valid_moves():
+
+4) Populate valid_moves with the valid moves for the selected piece.
+If valid_moves is not empty, set turn_step = 1:
+
+Transition to the "select destination" step.
+
+The basics work but I have encountered the following issues: 
+1) Black will move the knight then proceed to move the adjacent rook back and fourth each time it has a turn with no other moves being made.
+2) when black is put in check it will ackolwedge it, but not take any steps to evade or fight back. the allows the king to be captured relativly easally.
+3) black does not seems to caputre pieces unless it is a highvalue piece. it seems like the pawns do anything. 
+
+there maybe more issues but these are the first ones I have noticed.
+I will send you my output next. do not do anything. After I send my out I will then asked questions
+
+working ai code:
+def evaluate_board():
+    piece_values = {'pawn': 1.5, 'knight': 3, 'bishop': 3, 'rook': 5, 'queen': 9, 'king': 1000}
+    white_score = sum(piece_values[piece] for piece in white_pieces)
+    black_score = sum(piece_values[piece] for piece in black_pieces)
+    # Positional bonus for pawns
+    white_score += sum(loc[1] * 0.1 for loc in white_locations if white_pieces[white_locations.index(loc)] == 'pawn')
+    black_score += sum((7 - loc[1]) * 0.1 for loc in black_locations if black_pieces[black_locations.index(loc)] == 'pawn')
+    # Bonus for captured pieces
+    white_score += sum(piece_values[piece] for piece in captured_pieces_white)
+    black_score += sum(piece_values[piece] for piece in captured_pieces_black)
+    # Reward high-value captures
+    white_score += sum(piece_values[black_pieces[i]] for i, loc in enumerate(black_locations) if loc in [move for moves in white_options for move in moves])
+    black_score += sum(piece_values[white_pieces[i]] for i, loc in enumerate(white_locations) if loc in [move for moves in black_options for move in moves])
+    return white_score - black_score
+
+def evaluate_board():
+    piece_values = {'pawn': 1.5, 'knight': 3, 'bishop': 3, 'rook': 5, 'queen': 9, 'king': 1000}
+    white_score = sum(piece_values[piece] for piece in white_pieces)
+    black_score = sum(piece_values[piece] for piece in black_pieces)
+    white_score += sum(loc[1] * 0.1 for loc in white_locations if white_pieces[white_locations.index(loc)] == 'pawn')
+    black_score += sum((7 - loc[1]) * 0.1 for loc in black_locations if black_pieces[black_locations.index(loc)] == 'pawn')
+    white_score += sum(piece_values[piece] for piece in captured_pieces_white)
+    black_score += sum(piece_values[piece] for piece in captured_pieces_black)
+    if 'king' in black_pieces:
+        king_index = black_pieces.index('king')
+        if any(black_locations[king_index] in moves for moves in white_options):
+            black_score -= 50
+    if 'king' in white_pieces:
+        king_index = white_pieces.index('king')
+        if any(white_locations[king_index] in moves for moves in black_options):
+            white_score -= 50
+    return white_score - black_score
+
+    ### PART 6B
+# checking all valid moves for king
+def check_king(position, color):
+    moves_list = []
+    if color == 'white':
+        friends_list = white_locations
+        enemies_list = black_locations
+    else:
+        friends_list = black_locations
+        enemies_list = white_locations
+
+    # 8 possible moves for the king
+    targets = [(1, 0), (1, 1), (1, -1), (-1, 0), (-1, 1), (-1, -1), (0, 1), (0, -1)]
+    for target in [(position[0] + t[0], position[1] + t[1]) for t in targets]:
+        if target not in friends_list and 0 <= target[0] <= 7 and 0 <= target[1] <= 7:
+            moves_list.append(target)
+
+    # Filter out moves that place the king in danger
+    enemy_moves = [move for moves in check_options(enemies_list, black_locations if color == 'white' else white_locations, 'black' if color == 'white' else 'white') for move in moves]
+    moves_list = [move for move in moves_list if move not in enemy_moves]
+
+    return moves_list
+
+### now protects itself but will not attack and other pieces will not come to the the rescue.
+
+def evaluate_board():
+    piece_values = {'pawn': 1.5, 'knight': 3, 'bishop': 3, 'rook': 5, 'queen': 9, 'king': 1000}
+    white_score = sum(piece_values[piece] for piece in white_pieces)
+    black_score = sum(piece_values[piece] for piece in black_pieces)
+    white_score += sum(loc[1] * 0.1 for loc in white_locations if white_pieces[white_locations.index(loc)] == 'pawn')
+    black_score += sum((7 - loc[1]) * 0.1 for loc in black_locations if black_pieces[black_locations.index(loc)] == 'pawn')
+    white_score += sum(piece_values[piece] for piece in captured_pieces_white)
+    black_score += sum(piece_values[piece] for piece in captured_pieces_black)
+    white_score += sum(piece_values[black_pieces[i]] for i, loc in enumerate(black_locations) if loc in [move for moves in white_options for move in moves])
+    black_score += sum(piece_values[white_pieces[i]] for i, loc in enumerate(white_locations) if loc in [move for moves in black_options for move in moves])
+    if 'king' in black_pieces:
+        king_index = black_pieces.index('king')
+        king_location = black_locations[king_index]
+        if any(king_location in moves for moves in white_options):
+            black_score -= 500  # Heavily penalize leaving the king in danger
+    return white_score - black_score
+
+
+### doing this meant thack could not find any valid moves... which is insane.
+def check_pawn(position, color):
+    moves_list = []
+    if color == 'white':
+        if (position[0], position[1] + 1) not in white_locations + black_locations and position[1] < 7:
+            moves_list.append((position[0], position[1] + 1))
+        if position[1] == 1 and (position[0], position[1] + 1) not in white_locations + black_locations and \
+           (position[0], position[1] + 2) not in white_locations + black_locations:
+            moves_list.append((position[0], position[1] + 2))
+        if (position[0] + 1, position[1] + 1) in black_locations:
+            moves_list.append((position[0] + 1, position[1] + 1))
+        if (position[0] - 1, position[1] + 1) in black_locations:
+            moves_list.append((position[0] - 1, position[1] + 1))
+    else:  # Black pawn
+        if (position[0], position[1] - 1) not in white_locations + black_locations and position[1] > 0:
+            moves_list.append((position[0], position[1] - 1))
+        if position[1] == 6 and (position[0], position[1] - 1) not in white_locations + black_locations and \
+           (position[0], position[1] - 2) not in white_locations + black_locations:
+            moves_list.append((position[0], position[1] - 2))
+        if (position[0] + 1, position[1] - 1) in white_locations:
+            moves_list.append((position[0] + 1, position[1] - 1))
+        if (position[0] - 1, position[1] - 1) in white_locations:
+            moves_list.append((position[0] - 1, position[1] - 1))
+    return moves_list
+
+def draw_check(square_size, board_offset_x, board_offset_y):
+    if turn_step < 2:  # White's turn
+        if 'king' in white_pieces:
+            king_index = white_pieces.index('king')
+            king_location = white_locations[king_index]
+            if any(king_location in moves for moves in black_options):
+                x = board_offset_x + king_location[0] * square_size
+                y = board_offset_y + king_location[1] * square_size
+                pygame.draw.rect(screen, 'red', [x, y, square_size, square_size], 5)
+    else:  # Black's turn
+        if 'king' in black_pieces:
+            king_index = black_pieces.index('king')
+            king_location = black_locations[king_index]
+            if any(king_location in moves for moves in white_options):
+                x = board_offset_x + king_location[0] * square_size
+                y = board_offset_y + king_location[1] * square_size
+                pygame.draw.rect(screen, 'blue', [x, y, square_size, square_size], 5)
+def game_is_over():
+    if 'king' not in white_pieces:
+        print("Black wins!")
+        return True
+    if 'king' not in black_pieces:
+        print("White wins!")
+        return True
+    return False
+

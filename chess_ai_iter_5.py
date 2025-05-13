@@ -1,3 +1,4 @@
+### PART 1:
 import pygame
 
 # Initialize Pygame
@@ -18,11 +19,7 @@ big_font = pygame.font.Font('freesansbold.ttf', 50)
 timer = pygame.time.Clock()
 fps = 60
 
-
-
-
-### PART 2
-# game variables and images
+### PART 2: # game variables and images
 
 white_pieces = ['rook', 'knight', 'bishop', 'king', 'queen', 'bishop', 'knight', 'rook',
     'pawn', 'pawn', 'pawn', 'pawn', 'pawn', 'pawn', 'pawn', 'pawn']
@@ -37,12 +34,34 @@ captured_pieces_black = []
 
 # 0 - whites turn no selection: 1-whites turn piece selected: 
 # 2- black turn no selection, 3 - black turn piece selected
-turn_step = 0
-selection = 100    
-valid_moves = []
+# Turn and game state
+turn_step = 0  # 0: White's turn, no selection; 1: White's turn, piece selected; etc.
+print(f"Turn step at start of loop: {turn_step}")
+selection = 100  # No piece selected
+valid_moves = []  # No valid moves initially
+winner = ''  # No winner at the start
+game_over = False  # Game is not over
 
-### PART 3
-# load in game piece images 
+# Move tracking
+max_moves = 12  # Set a maximum number of moves to prevent infinite loops
+move_count = 0  # Initialize move counter
+
+# Board dimensions
+board_area_width = int(WIDTH * 0.75)
+square_size = min(board_area_width // 8, (HEIGHT - 100) // 8)
+piece_size = square_size * 0.8
+board_offset_x = 0
+board_offset_y = (HEIGHT - 100 - (square_size * 8)) // 2
+
+
+
+# Placeholder for move options
+black_options = []  # Will be initialized later
+white_options = []  # Will be initialized later
+# Counter for animations
+counter = 0
+
+### PART 3: # load in game piece images 
 
 black_queen = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\black queen.png')
 black_queen = pygame.transform.scale(black_queen, (80, 80))
@@ -107,11 +126,11 @@ counter = 0
 winner = ''
 game_over = False
 
-### PART 4 (updated)
 
-### PART 4 (resizing with side panel)
+### PART 4: (resizing with side panel)
 
 def draw_board(square_size, board_offset_x, board_offset_y, width, height, turn_step):
+    print(f"Rendering status text for turn_step: {turn_step}")
     # Calculate font size based on window size
     font_size = max(int(height * 0.03), 24)  # Adjust font size dynamically
     big_font = pygame.font.Font(None, font_size)  # Update the font size
@@ -144,6 +163,7 @@ def draw_board(square_size, board_offset_x, board_offset_y, width, height, turn_
     status_text = ['White: Select a Piece to Move!', 'White: Select a Destination!',
                    'Black: Select a Piece to Move!', 'Black: Select a Destination!']
     screen.blit(big_font.render(status_text[turn_step], True, 'black'), (20, height - 80))
+    print(f"Rendering status text for turn_step: {turn_step}")
 
 
 
@@ -163,27 +183,22 @@ winner = ''
 game_over = False
 
 # draw main game board
-### PART 5 drawing the pieces. 
+### PART 5: drawing the pieces. 
 
 # Function to draw the pieces on the main board
 def draw_pieces(square_size, piece_size, board_offset_x, board_offset_y):
+    print(f"Drawing pieces: White - {white_locations}, Black - {black_locations}")
     # Draw white pieces
     for i in range(len(white_pieces)):
         index = piece_list.index(white_pieces[i])
-        if white_pieces[i] == 'pawn':
-            piece_image = pygame.transform.scale(white_pawn, (int(piece_size), int(piece_size)))
-        else:
-            piece_image = pygame.transform.scale(white_images[index], (int(piece_size), int(piece_size)))
+        piece_image = pygame.transform.scale(white_images[index], (int(piece_size), int(piece_size)))
         screen.blit(piece_image, (board_offset_x + white_locations[i][0] * square_size + (square_size - piece_size) // 2,
                                   board_offset_y + white_locations[i][1] * square_size + (square_size - piece_size) // 2))
 
     # Draw black pieces
     for i in range(len(black_pieces)):
         index = piece_list.index(black_pieces[i])
-        if black_pieces[i] == 'pawn':
-            piece_image = pygame.transform.scale(black_pawn, (int(piece_size), int(piece_size)))
-        else:
-            piece_image = pygame.transform.scale(black_images[index], (int(piece_size), int(piece_size)))
+        piece_image = pygame.transform.scale(black_images[index], (int(piece_size), int(piece_size)))
         screen.blit(piece_image, (board_offset_x + black_locations[i][0] * square_size + (square_size - piece_size) // 2,
                                   board_offset_y + black_locations[i][1] * square_size + (square_size - piece_size) // 2))
 
@@ -199,6 +214,7 @@ def draw_pieces(square_size, piece_size, board_offset_x, board_offset_y):
                                                 board_offset_y + move_y * square_size + square_size // 2), piece_size // 6)
         
     if turn_step >= 2:  # Check if it's time to highlight the selected piece (based on your turn logic)
+        print(f"Rendering status text for turn_step: {turn_step}")
         if selection != 100:
             pygame.draw.rect(screen, 'blue', [board_offset_x + white_locations[selection][0] * square_size + (square_size - piece_size) // 2,
                                               board_offset_y + white_locations[selection][1] * square_size + (square_size - piece_size) // 2,
@@ -207,7 +223,7 @@ def draw_pieces(square_size, piece_size, board_offset_x, board_offset_y):
 
 
 
-### PART 6A
+### PART 6:
 # checking all valid pieces on the board
 def check_options(pieces, locations, turn):
     moves_list = []
@@ -215,6 +231,12 @@ def check_options(pieces, locations, turn):
     for i in range(len(pieces)):
         location = locations[i]
         piece = pieces[i]
+
+        # Validate location
+        if location is None:
+            print(f"Invalid location for piece {piece} at index {i}: {location}")
+            continue
+
         if piece == 'pawn':
             moves_list = check_pawn(location, turn)
         elif piece == 'rook':
@@ -228,33 +250,28 @@ def check_options(pieces, locations, turn):
         elif piece == 'queen':
             moves_list = check_queen(location, turn)
         all_moves_list.append(moves_list)
-    print(f"{turn.capitalize()} Options: {all_moves_list}")  # Debug print
+    print(f"Options for {turn}: {all_moves_list}")
     return all_moves_list
 
-### PART 6B
+### PART 7:
 # checking all valid moves for king
 def check_king(position, color):
     moves_list = []
     if color == 'white':
-        friends_list = white_locations
         enemies_list = black_locations
+        friends_list = white_locations
     else:
         friends_list = black_locations
         enemies_list = white_locations
-
-    # 8 possible moves for the king
+    # 8 squares to check for kings, they can go one square any direction
     targets = [(1, 0), (1, 1), (1, -1), (-1, 0), (-1, 1), (-1, -1), (0, 1), (0, -1)]
-    for target in [(position[0] + t[0], position[1] + t[1]) for t in targets]:
+    for i in range(8):
+        target = (position[0] + targets[i][0], position[1] + targets[i][1])
         if target not in friends_list and 0 <= target[0] <= 7 and 0 <= target[1] <= 7:
             moves_list.append(target)
-
-    # Filter out moves that place the king in danger
-    enemy_moves = [move for moves in check_options(enemies_list, black_locations if color == 'white' else white_locations, 'black' if color == 'white' else 'white') for move in moves]
-    moves_list = [move for move in moves_list if move not in enemy_moves]
-
     return moves_list
 
-### PART 6C
+### PART 8:
 # check queen valid moves
 def check_queen(position, color):
     moves_list = check_bishop(position, color)
@@ -263,7 +280,7 @@ def check_queen(position, color):
         moves_list.append(second_list[i])
     return moves_list
 
-### PART 6D
+### PART 9:
 # checking all valid moves for pawn
 
 def check_pawn(position, color):
@@ -283,7 +300,6 @@ def check_pawn(position, color):
         # Capture diagonally left
         if (position[0] - 1, position[1] + 1) in black_locations:
             moves_list.append((position[0] - 1, position[1] + 1))
-            print(f"White pawn at {position} moves: {moves_list}")  # Debug print
 
     else:  # color == 'black'
         # Move forward one step
@@ -300,10 +316,9 @@ def check_pawn(position, color):
         # Capture diagonally left
         if (position[0] - 1, position[1] - 1) in white_locations:
             moves_list.append((position[0] - 1, position[1] - 1))
-            print(f"Black pawn at {position} moves: {moves_list}")  # Debug print
     return moves_list
 
-### PART 6E
+### PART 10
 # valide moves for bishop
 def check_bishop(position, color):
     moves_list = []
@@ -338,7 +353,7 @@ def check_bishop(position, color):
             else:
                 path = False
     return moves_list
-### PART 6F
+### PART 11:
 # checking all valid moves for rook
 def check_rook(position, color):
         moves_list = []
@@ -374,9 +389,13 @@ def check_rook(position, color):
                     path = False
         return moves_list
     
-### PART 6G
+### PART 12:
 # check valid knight moves
 def check_knight(position, color):
+    if position is None:
+        print("Invalid position passed to check_knight.")
+        return []
+
     moves_list = []
     if color == 'white':
         enemies_list = black_locations
@@ -384,7 +403,8 @@ def check_knight(position, color):
     else:
         friends_list = black_locations
         enemies_list = white_locations
-    # 8 squares to check for knights, they can go two squares in one direction and one in another
+
+    # 8 squares to check for knights
     targets = [(1, 2), (1, -2), (2, 1), (2, -1), (-1, 2), (-1, -2), (-2, 1), (-2, -1)]
     for i in range(8):
         target = (position[0] + targets[i][0], position[1] + targets[i][1])
@@ -392,95 +412,32 @@ def check_knight(position, color):
             moves_list.append(target)
     return moves_list
 
-### PART 6H AI MINIMAX
-def game_is_over():
-    if 'king' not in white_pieces:
-        print("Black wins!")
-        return True
-    if 'king' not in black_pieces:
-        print("White wins!")
-        return True
-    if not any(black_options) and not any(move for moves in white_options for move in moves):
-        print("Stalemate!")
-        return True
-    return False
 
-def evaluate_board():
-    piece_values = {'pawn': 1.5, 'knight': 3, 'bishop': 3, 'rook': 5, 'queen': 9, 'king': 1000}
-    white_score = sum(piece_values[piece] for piece in white_pieces)
-    black_score = sum(piece_values[piece] for piece in black_pieces)
-    white_score += sum(loc[1] * 0.1 for loc in white_locations if white_pieces[white_locations.index(loc)] == 'pawn')
-    black_score += sum((7 - loc[1]) * 0.1 for loc in black_locations if black_pieces[black_locations.index(loc)] == 'pawn')
-    white_score += sum(piece_values[piece] for piece in captured_pieces_white)
-    black_score += sum(piece_values[piece] for piece in captured_pieces_black)
-    white_score += sum(piece_values[black_pieces[i]] for i, loc in enumerate(black_locations) if loc in [move for moves in white_options for move in moves])
-    black_score += sum(piece_values[white_pieces[i]] for i, loc in enumerate(white_locations) if loc in [move for moves in black_options for move in moves])
-    if 'king' in black_pieces:
-        king_index = black_pieces.index('king')
-        king_location = black_locations[king_index]
-        if any(king_location in moves for moves in white_options):
-            black_score -= 500  # Penalize leaving the king in danger
-        else:
-            black_score += 50  # Reward keeping the king safe
-    if 'king' in white_pieces:
-        white_king_index = white_pieces.index('king')
-        white_king_location = white_locations[white_king_index]
-        if any(white_king_location in moves for moves in black_options):
-            black_score += 200  # Reward threatening the opponent's king
-    return white_score - black_score
-visited_states = set()
 
-def minimax(depth, is_maximizing):
-    if depth == 0 or game_is_over():
-        return evaluate_board(), None
-
-    if is_maximizing:  # White's turn
-        max_eval = float('-inf')
-        best_move = None
-        for i, moves in enumerate(white_options):
-            if not moves:
-                continue
-            for move in moves:
-                # Simulate move
-                original_position = white_locations[i]
-                white_locations[i] = move
-                eval, _ = minimax(depth - 1, False)
-                white_locations[i] = original_position  # Undo move
-                if eval > max_eval:
-                    max_eval = eval
-                    best_move = (i, move)
-        return max_eval, best_move
-
-    else:  # Black's turn
-        min_eval = float('inf')
-        best_move = None
-        for i, moves in enumerate(black_options):
-            if not moves:
-                continue
-            for move in moves:
-                print(f"Black is evaluating move: {move} for piece {black_pieces[i]}")  # Debug print
-                # Simulate move
-                original_position = black_locations[i]
-                black_locations[i] = move
-                eval, _ = minimax(depth - 1, True)
-                black_locations[i] = original_position  # Undo move
-                if eval < min_eval:
-                    min_eval = eval
-                    best_move = (i, move)
-        return min_eval, best_move
-
-    
-### PART 7
+### PART 13:
 # check for valid moves for just selected piece
 def check_valid_moves():
+    # Point 1: Print selection and turn_step
+    print(f"Selection: {selection}, Turn step: {turn_step}")
+
     if turn_step < 2:
+        print(f"Checking valid moves for White. Turn step: {turn_step}")
         options_list = white_options
     else:
+        print(f"Checking valid moves for Black. Turn step: {turn_step}")
         options_list = black_options
+
+    # Point 2: Print white_options and black_options
+    print(f"White options: {white_options}")
+    print(f"Black options: {black_options}")
+
+    # Point 3: Check and print valid_options
     valid_options = options_list[selection]
+    print(f"Valid moves for selection {selection}: {valid_options}")
+
     return valid_options
 
-### PART 8 (updated) - draw_valid function
+### PART 14: (updated) - draw_valid function
 def draw_valid(valid_moves, square_size, board_offset_x, board_offset_y):
     # Loop through each valid move and draw a circle at the correct position
     for move in valid_moves:
@@ -492,7 +449,7 @@ def draw_valid(valid_moves, square_size, board_offset_x, board_offset_y):
 
 
 
-### PART 9: Draw captured pieces with dynamic resizing and fixed minimum width for the panel
+### PART 15: Draw captured pieces with dynamic resizing and fixed minimum width for the panel
 def draw_captured(square_size, piece_size, board_offset_x, board_offset_y, WIDTH, HEIGHT):
     # Minimum width for the captured pieces section to remain visible
     min_panel_width = square_size * 2  # Ensure the panel never shrinks too small
@@ -526,9 +483,10 @@ def draw_captured(square_size, piece_size, board_offset_x, board_offset_y, WIDTH
 
 
 
-### PART 10: the rules for putting a king in check, and winning the game
+### PART 16: the rules for putting a king in check, and winning the game
 def draw_check(square_size, board_offset_x, board_offset_y):
     if turn_step < 2:
+        print(f"Rendering status text for turn_step: {turn_step}")
         if 'king' in white_pieces:
             king_index = white_pieces.index('king')
             king_location = white_locations[king_index]
@@ -555,112 +513,242 @@ def draw_game_over():
     screen.blit(font.render(f'{winner} won the game!', True, 'white'), (210, 210))
     screen.blit(font.render(f'Press ENTER to Restart!', True, 'white'), (210, 240))
 
-
+print(f"Black locations: {black_locations}")
+print(f"White locations: {white_locations}")
 black_options = check_options(black_pieces, black_locations, 'black')
 white_options = check_options(white_pieces, white_locations, 'white')
 
-### PART 11: the main game loop
+### PART 17: AI evaluation function and minimax algorithm
+def evaluate_board(white_pieces, white_locations, black_pieces, black_locations):
+    piece_values = {'pawn': 1, 'knight': 3, 'bishop': 3, 'rook': 5, 'queen': 9, 'king': 1000}
+    white_score = sum(piece_values[p] for p in white_pieces)
+    black_score = sum(piece_values[p] for p in black_pieces)
+    return black_score - white_score  # Higher is better for black (AI)
+
+def game_is_over(white_pieces, black_pieces):
+    global black_options, white_options  # Ensure options are updated globally
+    black_options = check_options(black_pieces, black_locations, 'black')
+    white_options = check_options(white_pieces, white_locations, 'white')
+
+    if 'king' not in white_pieces or 'king' not in black_pieces:
+        print("Game over: A king is missing.")
+        return True
+    if not any(white_options) and turn_step < 2:  # No valid moves for White
+        print("Game over: White has no valid moves. Stalemate or invalid state.")
+        return True
+    if not any(black_options) and turn_step >= 2:  # No valid moves for Black
+        print("Game over: Black has no valid moves. Stalemate or invalid state.")
+        return True
+    return False
+
+def get_all_moves(pieces, locations, color):
+    options = []
+    for i, piece in enumerate(pieces):
+        # Validate piece index
+        if i >= len(locations):
+            print(f"Invalid piece index in get_all_moves: {i}, locations: {locations}")
+            continue
+
+        # Temporarily update selection/turn_step for move generation
+        original_selection = selection
+        original_turn = turn_step
+        print(f"Rendering status text for turn_step: {turn_step}")
+        globals()['selection'] = i
+        globals()['turn_step'] = 2 if color == 'black' else 0
+        print(f"Rendering status text for turn_step: {turn_step}")
+        moves = check_valid_moves()
+        globals()['selection'] = original_selection
+        globals()['turn_step'] = original_turn
+        print(f"Rendering status text for turn_step: {turn_step}")
+
+        for move in moves:
+            options.append((i, move))
+    print(f"Generated moves for {color}: {options}")
+    return options
+def is_king_in_check(pieces, locations, enemy_options, color):
+    """Check if the king of the given color is in check."""
+    if 'king' not in pieces:
+        return False  # No king, game over
+    king_index = pieces.index('king')
+    king_location = locations[king_index]
+    for moves in enemy_options:
+        if king_location in moves:
+            return True
+    return False
+
+def simulate_move(pieces, locations, opponent_pieces, opponent_locations, piece_index, move):
+    if piece_index < 0 or piece_index >= len(locations):
+        print(f"Invalid piece_index in simulate_move: {piece_index}, locations: {locations}")
+        return None, None
+
+    print(f"Simulating move: piece_index={piece_index}, move={move}, locations={locations}")
+    original_pos = locations[piece_index]
+    captured_piece = None
+
+    # Handle capturing an opponent's piece
+    if move in opponent_locations:
+        captured_index = opponent_locations.index(move)
+        captured_piece = (opponent_pieces[captured_index], captured_index)
+        opponent_pieces.pop(captured_index)
+        opponent_locations[captured_index] = (-1, -1)  # Replace with placeholder
+
+    # Update the piece's location
+    locations[piece_index] = move
+    print(f"After simulating move: locations={locations}")
+
+    return original_pos, captured_piece
+
+def undo_move(pieces, locations, opponent_pieces, opponent_locations, piece_index, move, original_pos=None, captured_piece=None):
+    if piece_index < 0 or piece_index >= len(locations):
+        print(f"Invalid piece_index in undo_move: {piece_index}, locations: {locations}")
+        return
+
+    print(f"Undoing move: piece_index={piece_index}, move={move}, original_pos={original_pos}, locations={locations}")
+    # Restore the piece's original position
+    if original_pos is not None:
+        locations[piece_index] = original_pos
+    else:
+        print(f"Warning: original_pos is None for piece_index={piece_index}")
+
+    # Restore the captured piece, if any
+    if captured_piece:
+        opponent_pieces.insert(captured_piece[1], captured_piece[0])
+        opponent_locations[captured_piece[1]] = move
+    print(f"After undoing move: locations={locations}")
+
+def minimax(depth, is_maximizing, white_pieces, white_locations, black_pieces, black_locations):
+    print(f"Minimax called at depth {depth} with {'Black' if is_maximizing else 'White'}'s turn")
+
+    # Base case: game over or maximum depth reached
+    if game_is_over(white_pieces, black_pieces) or depth == 0:
+        score = evaluate_board(white_pieces, white_locations, black_pieces, black_locations)
+        print(f"Evaluating board at depth {depth}: {score}")
+        return score, None
+
+    # Get all possible moves for the current player
+    all_moves = get_all_moves(black_pieces if is_maximizing else white_pieces,
+                              black_locations if is_maximizing else white_locations,
+                              'black' if is_maximizing else 'white')
+    print(f"All moves for {'Black' if is_maximizing else 'White'}: {all_moves}")
+
+    # If no valid moves, check for stalemate or checkmate
+    if not all_moves:
+        if is_maximizing:
+            if is_king_in_check(black_pieces, black_locations, check_options(white_pieces, white_locations, 'white'), 'black'):
+                return -float('inf'), None  # Black is checkmated
+            else:
+                return 0, None  # Stalemate
+        else:
+            if is_king_in_check(white_pieces, white_locations, check_options(black_pieces, black_locations, 'black'), 'white'):
+                return float('inf'), None  # White is checkmated
+            else:
+                return 0, None  # Stalemate
+
+    # Initialize variables
+    best_score = -float('inf') if is_maximizing else float('inf')
+    best_move = None
+
+    # Iterate through all possible moves
+    for piece_index, move in all_moves:
+        print(f"Processing move: piece_index={piece_index}, move={move}, locations={white_locations if not is_maximizing else black_locations}")
+        # Simulate the move
+        if is_maximizing:
+            simulate_move(black_pieces, black_locations, white_pieces, white_locations, piece_index, move)
+        else:
+            simulate_move(white_pieces, white_locations, black_pieces, black_locations, piece_index, move)
+
+        # Recursively call minimax
+        score, _ = minimax(depth - 1, not is_maximizing, white_pieces, white_locations, black_pieces, black_locations)
+
+        # Undo the move
+        if is_maximizing:
+            undo_move(black_pieces, black_locations, white_pieces, white_locations, piece_index, move)
+        else:
+            undo_move(white_pieces, white_locations, black_pieces, black_locations, piece_index, move)
+
+        # Update the best score and move
+        if is_maximizing:
+            if score > best_score:
+                best_score = score
+                best_move = (piece_index, move)
+        else:
+            if score < best_score:
+                best_score = score
+                best_move = (piece_index, move)
+
+    print(f"Best move for {'Black' if is_maximizing else 'White'} at depth {depth}: {best_move} with score {best_score}")
+    return best_score, best_move
+
+### PART 18: the main game loop
 # Initial definitions outside the loop
 board_area_width = int(WIDTH * 0.75)
 square_size = min(board_area_width // 8, (HEIGHT - 100) // 8)
 piece_size = square_size * 0.8
 board_offset_x = 0
 board_offset_y = (HEIGHT - 100 - (square_size * 8)) // 2
+max_moves = 50  # Set a maximum number of moves to prevent infinite loops
+move_count = 0
 
+# Main game loop
+# Main game loop
 run = True
 while run:
+    # Ensure turn_step is valid
+    if turn_step not in [0, 1, 2, 3]:
+        print(f"Invalid turn_step detected: {turn_step}. Resetting to 0.")
+        turn_step = 0
+
+    move_count += 1
+    if move_count > max_moves:
+        print("Maximum move limit reached. Ending game to prevent infinite loop.")
+        game_over = True
+        break
+
+    print(f"Turn step at start of loop: {turn_step}")
     timer.tick(fps)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
 
-        elif event.type == pygame.VIDEORESIZE:
-            WIDTH, HEIGHT = event.w, event.h
-            screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
-
-            board_area_width = int(WIDTH * 0.75)
-            square_size = min(board_area_width // 8, (HEIGHT - 100) // 8)
-            piece_size = square_size * 0.8
-            board_offset_x = 0
-            board_offset_y = (HEIGHT - 100 - (square_size * 8)) // 2
-
-            print(f"New Window Size -> Width: {WIDTH}, Height: {HEIGHT}")
-            print(f"Calculated Square Size: {square_size}")
-            print(f"Board Offsets -> X: {board_offset_x}, Y: {board_offset_y}")
-            print(f"Piece Size: {piece_size}")
-
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and not game_over:
             mouse_x, mouse_y = event.pos
+            x_coord = (mouse_x - board_offset_x) // square_size
+            y_coord = (mouse_y - board_offset_y) // square_size
+            print(f"Mouse clicked at: {mouse_x}, {mouse_y}")
 
-            forfeit_width = square_size * 2
-            forfeit_height = square_size // 1.5
-            forfeit_x = WIDTH - forfeit_width - 10
-            forfeit_y = HEIGHT - forfeit_height - 10
+            # Check if the click is within the board
+            if (board_offset_x <= mouse_x <= board_offset_x + square_size * 8) and (board_offset_y <= mouse_y <= board_offset_y + square_size * 8):
+                if 0 <= x_coord <= 7 and 0 <= y_coord <= 7:
+                    click_coords = (int(x_coord), int(y_coord))
+                    print(f"Valid board coordinates: {click_coords}")
+                else:
+                    print(f"Invalid board coordinates: ({x_coord}, {y_coord})")
+                    click_coords = None  # Reset invalid clicks
+                print(f"Click coordinates: {click_coords}")
 
-            if forfeit_x <= mouse_x <= forfeit_x + forfeit_width and forfeit_y <= mouse_y <= forfeit_y + forfeit_height:
-                winner = 'black' if turn_step in [0, 1] else 'white'
-                game_over = True
-
-            elif (board_offset_x <= mouse_x <= board_offset_x + square_size * 8) and (board_offset_y <= mouse_y <= board_offset_y + square_size * 8):
-                x_coord = (mouse_x - board_offset_x) // square_size
-                y_coord = (mouse_y - board_offset_y) // square_size
-                click_coords = (int(x_coord), int(y_coord))
-
-                if turn_step <= 1:
-                    if click_coords in white_locations:
+                if turn_step <= 1:  # White's turn
+                    if click_coords in white_locations:  # Select a white piece
                         selection = white_locations.index(click_coords)
-                        if turn_step == 0:
-                            turn_step = 1
-                    if click_coords in valid_moves and selection != 100:
+                        valid_moves = check_valid_moves()  # Get valid moves for the selected piece
+                        if valid_moves:  # Ensure there are valid moves
+                            turn_step = 1  # Move to "select destination" step
+                            print(f"Piece selected at {click_coords}. Valid moves: {valid_moves}")
+                        else:
+                            print("No valid moves for the selected piece.")
+                    if click_coords in valid_moves and selection != 100:  # Move the selected piece
                         white_locations[selection] = click_coords
-                        if click_coords in black_locations:
+                        if click_coords in black_locations:  # Capture a black piece
                             black_piece = black_locations.index(click_coords)
                             captured_pieces_white.append(black_pieces[black_piece])
-                            if black_pieces[black_piece] == 'king':
+                            if black_pieces[black_piece] == 'king':  # Check for game over
                                 winner = 'white'
                             black_pieces.pop(black_piece)
                             black_locations.pop(black_piece)
+                        # Update valid moves and switch turn
                         black_options = check_options(black_pieces, black_locations, 'black')
                         white_options = check_options(white_pieces, white_locations, 'white')
-                        turn_step = 2
-                        selection = 100
-                        valid_moves = []
-                else:
-                    if turn_step == 2:  # Black's turn
-                        print(f"Black Options: {black_options}")
-                        print("Black's turn: Calling minimax...")
-                        _, best_move = minimax(depth=3, is_maximizing=False)
-                        print(f"Best move for Black: {best_move}")
-                        if best_move:
-                            piece_index, move = best_move
-                            black_locations[piece_index] = move
-                            if move in white_locations:  # Capture
-                                captured_index = white_locations.index(move)
-                                captured_pieces_black.append(white_pieces[captured_index])
-                                if white_pieces[captured_index] == 'king':
-                                    winner = 'black'
-                                white_pieces.pop(captured_index)
-                                white_locations.pop(captured_index)
-                            # Update options after the move
-                            black_options = check_options(black_pieces, black_locations, 'black')
-                            white_options = check_options(white_pieces, white_locations, 'white')
-                            turn_step = 0  # Switch to White's turn
-                        else:
-                            print("No valid moves for Black.")
-                            turn_step = 0  # Ensure the game doesn't get stuck
-                    if click_coords in valid_moves and selection != 100:
-                        black_locations[selection] = click_coords
-                        if click_coords in white_locations:
-                            white_piece = white_locations.index(click_coords)
-                            captured_pieces_black.append(white_pieces[white_piece])
-                            if white_pieces[white_piece] == 'king':
-                                winner = 'black'
-                            white_pieces.pop(white_piece)
-                            white_locations.pop(white_piece)
-                        black_options = check_options(black_pieces, black_locations, 'black')
-                        white_options = check_options(white_pieces, white_locations, 'white')
-                        turn_step = 0
+                        turn_step = 2 if turn_step == 1 else 0  # Switch to Black's turn
                         selection = 100
                         valid_moves = []
 
@@ -671,21 +759,30 @@ while run:
                 white_pieces = ['rook', 'knight', 'bishop', 'king', 'queen', 'bishop', 'knight', 'rook',
                                 'pawn', 'pawn', 'pawn', 'pawn', 'pawn', 'pawn', 'pawn', 'pawn']
                 white_locations = [(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0),
-                                   (0, 1), (1, 1), (2, 1), (3, 1), (4, 1), (5, 1), (6, 1), (7, 1)]
+                                (0, 1), (1, 1), (2, 1), (3, 1), (4, 1), (5, 1), (6, 1), (7, 1)]
                 black_pieces = ['rook', 'knight', 'bishop', 'king', 'queen', 'bishop', 'knight', 'rook',
                                 'pawn', 'pawn', 'pawn', 'pawn', 'pawn', 'pawn', 'pawn', 'pawn']
                 black_locations = [(0, 7), (1, 7), (2, 7), (3, 7), (4, 7), (5, 7), (6, 7), (7, 7),
-                                   (0, 6), (1, 6), (2, 6), (3, 6), (4, 6), (5, 6), (6, 6), (7, 6)]
+                                (0, 6), (1, 6), (2, 6), (3, 6), (4, 6), (5, 6), (6, 6), (7, 6)]
                 captured_pieces_white = []
                 captured_pieces_black = []
                 turn_step = 0
+                print(f"Turn step after game reset: {turn_step}")
                 selection = 100
                 valid_moves = []
                 black_options = check_options(black_pieces, black_locations, 'black')
                 white_options = check_options(white_pieces, white_locations, 'white')
 
+    # Check for game over
+    if game_is_over(white_pieces, black_pieces):
+        print("Game over detected.")
+        game_over = True
+        break
+
+    # Draw the game state
     screen.fill('dark green')
     draw_board(square_size, board_offset_x, board_offset_y, WIDTH, HEIGHT, turn_step)
+    print(f"Rendering status text for turn_step: {turn_step}")
     draw_pieces(square_size, piece_size, board_offset_x, board_offset_y)
     draw_captured(square_size, piece_size, board_offset_x, board_offset_y, WIDTH, HEIGHT)
     draw_check(square_size, board_offset_x, board_offset_y)
