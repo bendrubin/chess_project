@@ -430,7 +430,7 @@ def evaluate_board():
     return white_score - black_score
 visited_states = set()
 
-def minimax(depth, is_maximizing):
+def minimax(depth, is_maximizing, alpha=float('-inf'), beta=float('inf')):
     if depth == 0 or game_is_over():
         return evaluate_board(), None
 
@@ -444,11 +444,14 @@ def minimax(depth, is_maximizing):
                 # Simulate move
                 original_position = white_locations[i]
                 white_locations[i] = move
-                eval, _ = minimax(depth - 1, False)
+                eval, _ = minimax(depth - 1, False, alpha, beta)
                 white_locations[i] = original_position  # Undo move
                 if eval > max_eval:
                     max_eval = eval
                     best_move = (i, move)
+                alpha = max(alpha, eval)
+                if beta <= alpha:
+                    break  # Prune the branch
         return max_eval, best_move
 
     else:  # Black's turn
@@ -458,15 +461,17 @@ def minimax(depth, is_maximizing):
             if not moves:
                 continue
             for move in moves:
-                print(f"Black is evaluating move: {move} for piece {black_pieces[i]}")  # Debug print
                 # Simulate move
                 original_position = black_locations[i]
                 black_locations[i] = move
-                eval, _ = minimax(depth - 1, True)
+                eval, _ = minimax(depth - 1, True, alpha, beta)
                 black_locations[i] = original_position  # Undo move
                 if eval < min_eval:
                     min_eval = eval
                     best_move = (i, move)
+                beta = min(beta, eval)
+                if beta <= alpha:
+                    break  # Prune the branch
         return min_eval, best_move
 
     
