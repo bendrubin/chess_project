@@ -407,14 +407,25 @@ def game_is_over():
 
 def evaluate_board():
     piece_values = {'pawn': 1.5, 'knight': 3, 'bishop': 3, 'rook': 5, 'queen': 9, 'king': 1000}
-    white_score = sum(piece_values[piece] for piece in white_pieces)
-    black_score = sum(piece_values[piece] for piece in black_pieces)
+    center_squares = [(3, 3), (3, 4), (4, 3), (4, 4)]
+    white_score = 0
+    black_score = 0
+
+    # Piece values and pawn positioning
+    white_score += sum(piece_values[piece] for piece in white_pieces)
+    black_score += sum(piece_values[piece] for piece in black_pieces)
     white_score += sum(loc[1] * 0.1 for loc in white_locations if white_pieces[white_locations.index(loc)] == 'pawn')
     black_score += sum((7 - loc[1]) * 0.1 for loc in black_locations if black_pieces[black_locations.index(loc)] == 'pawn')
+
+    # Captured pieces
     white_score += sum(piece_values[piece] for piece in captured_pieces_white)
     black_score += sum(piece_values[piece] for piece in captured_pieces_black)
+
+    # Threats to opponent's pieces
     white_score += sum(piece_values[black_pieces[i]] for i, loc in enumerate(black_locations) if loc in [move for moves in white_options for move in moves])
     black_score += sum(piece_values[white_pieces[i]] for i, loc in enumerate(white_locations) if loc in [move for moves in black_options for move in moves])
+
+    # King safety
     if 'king' in black_pieces:
         king_index = black_pieces.index('king')
         king_location = black_locations[king_index]
@@ -427,11 +438,30 @@ def evaluate_board():
         white_king_location = white_locations[white_king_index]
         if any(white_king_location in moves for moves in black_options):
             black_score += 200  # Reward threatening the opponent's king
+
+    # Control of the center
+    white_score += sum(0.5 for loc in white_locations if loc in center_squares)
+    black_score += sum(0.5 for loc in black_locations if loc in center_squares)
+
+    # Piece mobility
+    white_score += sum(len(moves) * 0.1 for moves in white_options)
+    black_score += sum(len(moves) * 0.1 for moves in black_options)
+
+    # Pawn structure
+    white_pawn_columns = [loc[0] for loc in white_locations if white_pieces[white_locations.index(loc)] == 'pawn']
+    black_pawn_columns = [loc[0] for loc in black_locations if black_pieces[black_locations.index(loc)] == 'pawn']
+    white_score -= sum(0.2 for col in white_pawn_columns if white_pawn_columns.count(col) > 1)  # Penalize doubled pawns
+    black_score -= sum(0.2 for col in black_pawn_columns if black_pawn_columns.count(col) > 1)  # Penalize doubled pawns
+
     return white_score - black_score
+
 visited_states = set()
 
+MAX_DEPTH = 3  # Adjust this value as needed for performance vs. decision quality
+
 def minimax(depth, is_maximizing, alpha=float('-inf'), beta=float('inf')):
-    if depth == 0 or game_is_over():
+    # Stop recursion if depth limit is reached or the game is over
+    if depth >= MAX_DEPTH or game_is_over():
         return evaluate_board(), None
 
     if is_maximizing:  # White's turn
@@ -444,7 +474,7 @@ def minimax(depth, is_maximizing, alpha=float('-inf'), beta=float('inf')):
                 # Simulate move
                 original_position = white_locations[i]
                 white_locations[i] = move
-                eval, _ = minimax(depth - 1, False, alpha, beta)
+                eval, _ = minimax(depth + 1, False, alpha, beta)  # Increment depth
                 white_locations[i] = original_position  # Undo move
                 if eval > max_eval:
                     max_eval = eval
@@ -464,7 +494,7 @@ def minimax(depth, is_maximizing, alpha=float('-inf'), beta=float('inf')):
                 # Simulate move
                 original_position = black_locations[i]
                 black_locations[i] = move
-                eval, _ = minimax(depth - 1, True, alpha, beta)
+                eval, _ = minimax(depth + 1, True, alpha, beta)  # Increment depth
                 black_locations[i] = original_position  # Undo move
                 if eval < min_eval:
                     min_eval = eval
@@ -473,7 +503,6 @@ def minimax(depth, is_maximizing, alpha=float('-inf'), beta=float('inf')):
                 if beta <= alpha:
                     break  # Prune the branch
         return min_eval, best_move
-
     
 ### PART 7
 # check for valid moves for just selected piece
@@ -626,6 +655,13 @@ while run:
                                 winner = 'white'
                             black_pieces.pop(black_piece)
                             black_locations.pop(black_piece)
+
+                        # **Pawn Promotion for White**
+                        for i, loc in enumerate(white_locations):
+                            if white_pieces[i] == 'pawn' and loc[1] == 7:  # Reached the last rank
+                                white_pieces[i] = 'queen'  # Promote to a queen
+                                print(f"White pawn at {loc} promoted to a queen!")
+
                         black_options = check_options(black_pieces, black_locations, 'black')
                         white_options = check_options(white_pieces, white_locations, 'white')
                         turn_step = 2
@@ -633,9 +669,9 @@ while run:
                         valid_moves = []
                 else:
                     if turn_step == 2:  # Black's turn
-                        print(f"Black Options: {black_options}")
+                        print(f"Black Options Before Move: {black_options}")  # Debug print
                         print("Black's turn: Calling minimax...")
-                        _, best_move = minimax(depth=3, is_maximizing=False)
+                        _, best_move = minimax(depth=0, is_maximizing=False)  # Start depth at 0
                         print(f"Best move for Black: {best_move}")
                         if best_move:
                             piece_index, move = best_move
@@ -647,6 +683,13 @@ while run:
                                     winner = 'black'
                                 white_pieces.pop(captured_index)
                                 white_locations.pop(captured_index)
+
+                            # **Pawn Promotion for Black**
+                            for i, loc in enumerate(black_locations):
+                                if black_pieces[i] == 'pawn' and loc[1] == 0:  # Reached the last rank
+                                    black_pieces[i] = 'queen'  # Promote to a queen
+                                    print(f"Black pawn at {loc} promoted to a queen!")
+
                             # Update options after the move
                             black_options = check_options(black_pieces, black_locations, 'black')
                             white_options = check_options(white_pieces, white_locations, 'white')
