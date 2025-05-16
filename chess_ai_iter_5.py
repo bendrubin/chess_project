@@ -497,7 +497,7 @@ def game_is_over():
     return False
 
 def evaluate_board():
-    piece_values = {'pawn': 1.5, 'knight': 3, 'bishop': 3, 'rook': 5, 'queen': 9, 'king': 1000}
+    piece_values = {'pawn': 2, 'knight': 10, 'bishop': 20, 'rook': 50, 'queen': 500, 'king': 1000}
     center_squares = [(3, 3), (3, 4), (4, 3), (4, 4)]
     white_score = 0
     black_score = 0
@@ -681,6 +681,9 @@ def draw_game_over():
     screen.blit(font.render(f'Press ENTER to Restart!', True, 'white'), (210, 240))
 
 
+assert all(isinstance(piece, str) for piece in white_pieces), "white_pieces contains invalid data!"
+assert all(isinstance(piece, str) for piece in black_pieces), "black_pieces contains invalid data!"
+
 black_options = check_options(black_pieces, black_locations, 'black')
 white_options = check_options(white_pieces, white_locations, 'white')
 
@@ -694,6 +697,8 @@ board_offset_y = (HEIGHT - 100 - (square_size * 8)) // 2
 
 run = True
 while run:
+    assert all(isinstance(piece, str) for piece in white_pieces), "white_pieces contains invalid data!"
+    assert all(isinstance(piece, str) for piece in black_pieces), "black_pieces contains invalid data!"
     timer.tick(fps)
 
     for event in pygame.event.get():
@@ -738,26 +743,38 @@ while run:
                         if turn_step == 0:
                             turn_step = 1
                     if click_coords in valid_moves and selection != 100:
+                        # Update the location of the selected piece
                         white_locations[selection] = click_coords
-                        if click_coords in black_locations:
-                            black_piece = black_locations.index(click_coords)
-                            captured_pieces_white.append(black_pieces[black_piece])
-                            if black_pieces[black_piece] == 'king':
-                                winner = 'white'
-                            black_pieces.pop(black_piece)
-                            black_locations.pop(black_piece)
 
-                        # **Pawn Promotion for White**
+                        # Handle capturing a black piece
+                        if click_coords in black_locations:
+                            captured_index = black_locations.index(click_coords)
+                            captured_pieces_white.append(black_pieces[captured_index])  # Add captured piece to the list
+                            if black_pieces[captured_index] == 'king':
+                                winner = 'white'  # End the game if the king is captured
+                            black_pieces.pop(captured_index)  # Remove the captured piece type
+                            black_locations.pop(captured_index)  # Remove the captured piece position
+
+                        # Handle pawn promotion
                         for i, loc in enumerate(white_locations):
                             if white_pieces[i] == 'pawn' and loc[1] == 7:  # Reached the last rank
                                 white_pieces[i] = 'queen'  # Promote to a queen
                                 print(f"White pawn at {loc} promoted to a queen!")
 
+                        
+                        assert all(isinstance(piece, str) for piece in white_pieces), "white_pieces contains invalid data!"
+                        assert all(isinstance(piece, str) for piece in black_pieces), "black_pieces contains invalid data!"
+
                         black_options = check_options(black_pieces, black_locations, 'black')
                         white_options = check_options(white_pieces, white_locations, 'white')
-                        turn_step = 2
+                        turn_step = 2  # Switch to Black's turn
                         selection = 100
                         valid_moves = []
+                        
+                        print(f"White pieces: {white_pieces}")
+                        print(f"White locations: {white_locations}")
+                        print(f"Black pieces: {black_pieces}")
+                        print(f"Black locations: {black_locations}")
                 else:
                     if turn_step == 2:  # Black's turn
                         print(f"Black Options Before Move: {black_options}")  # Debug print
@@ -774,6 +791,10 @@ while run:
                                     winner = 'black'
                                 white_pieces.pop(captured_index)
                                 white_locations.pop(captured_index)
+                                
+                           
+                                print(f"Remaining Black pieces: {black_pieces}")
+                                print(f"Remaining Black locations: {black_locations}")
 
                             # **Pawn Promotion for Black**
                             for i, loc in enumerate(black_locations):
@@ -782,6 +803,8 @@ while run:
                                     print(f"Black pawn at {loc} promoted to a queen!")
 
                             # Update options after the move
+                            assert all(isinstance(piece, str) for piece in white_pieces), "white_pieces contains invalid data!"
+                            assert all(isinstance(piece, str) for piece in black_pieces), "black_pieces contains invalid data!"
                             black_options = check_options(black_pieces, black_locations, 'black')
                             white_options = check_options(white_pieces, white_locations, 'white')
                             turn_step = 0  # Switch to White's turn
@@ -789,19 +812,38 @@ while run:
                             print("No valid moves for Black.")
                             turn_step = 0  # Ensure the game doesn't get stuck
                     if click_coords in valid_moves and selection != 100:
+                        # Update the location of the selected piece
                         black_locations[selection] = click_coords
+
+                        # Handle capturing a white piece
                         if click_coords in white_locations:
-                            white_piece = white_locations.index(click_coords)
-                            captured_pieces_black.append(white_pieces[white_piece])
-                            if white_pieces[white_piece] == 'king':
-                                winner = 'black'
-                            white_pieces.pop(white_piece)
-                            white_locations.pop(white_piece)
+                            captured_index = white_locations.index(click_coords)
+                            captured_pieces_black.append(white_pieces[captured_index])  # Add captured piece to the list
+                            if white_pieces[captured_index] == 'king':
+                                winner = 'black'  # End the game if the king is captured
+                            white_pieces.pop(captured_index)  # Remove the captured piece type
+                            white_locations.pop(captured_index)  # Remove the captured piece position
+
+                        # Handle pawn promotion
+                        for i, loc in enumerate(black_locations):
+                            if black_pieces[i] == 'pawn' and loc[1] == 0:  # Reached the last rank
+                                black_pieces[i] = 'queen'  # Promote to a queen
+                                print(f"Black pawn at {loc} promoted to a queen!")
+
+                            
+                        assert all(isinstance(piece, str) for piece in white_pieces), "white_pieces contains invalid data!"
+                        assert all(isinstance(piece, str) for piece in black_pieces), "black_pieces contains invalid data!"
+                        
                         black_options = check_options(black_pieces, black_locations, 'black')
                         white_options = check_options(white_pieces, white_locations, 'white')
-                        turn_step = 0
+                        turn_step = 0  # Switch to White's turn
                         selection = 100
                         valid_moves = []
+                        
+                        print(f"White pieces: {white_pieces}")
+                        print(f"White locations: {white_locations}")
+                        print(f"Black pieces: {black_pieces}")
+                        print(f"Black locations: {black_locations}")
 
         elif event.type == pygame.KEYDOWN and game_over:
             if event.key == pygame.K_RETURN:
@@ -820,6 +862,9 @@ while run:
                 turn_step = 0
                 selection = 100
                 valid_moves = []
+                assert all(isinstance(piece, str) for piece in white_pieces), "white_pieces contains invalid data!"
+                assert all(isinstance(piece, str) for piece in black_pieces), "black_pieces contains invalid data!"
+                
                 black_options = check_options(black_pieces, black_locations, 'black')
                 white_options = check_options(white_pieces, white_locations, 'white')
 
