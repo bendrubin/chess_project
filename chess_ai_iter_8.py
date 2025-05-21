@@ -5,7 +5,7 @@ pygame.init()
 
 # Set up the screen with an initial default size and make it resizable
 WIDTH, HEIGHT = 800, 800
-SIDE_PANEL_WIDTH = int(WIDTH * .25)  # 25% of total width
+SIDE_PANEL_WIDTH = int(WIDTH * 0.25)  # 25% of total width
 screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
 pygame.display.set_caption("Resizable Chessboard")
 
@@ -26,12 +26,10 @@ fps = 60
 
 white_pieces = ['rook', 'knight', 'bishop', 'king', 'queen', 'bishop', 'knight', 'rook',
     'pawn', 'pawn', 'pawn', 'pawn', 'pawn', 'pawn', 'pawn', 'pawn']
-assert all(isinstance(piece, str) for piece in white_pieces), "white_pieces contains invalid data!"
 white_locations = [(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0),
        (0, 1), (1, 1), (2, 1), (3, 1), (4, 1), (5, 1), (6, 1), (7, 1)]
 black_pieces = ['rook', 'knight', 'bishop', 'king', 'queen', 'bishop', 'knight', 'rook',
     'pawn', 'pawn', 'pawn', 'pawn', 'pawn', 'pawn', 'pawn', 'pawn']
-assert all(isinstance(piece, str) for piece in black_pieces), "black_pieces contains invalid data!"
 black_locations = [(0, 7), (1, 7), (2, 7), (3, 7), (4, 7), (5, 7), (6, 7), (7, 7),
        (0, 6), (1, 6), (2, 6), (3, 6), (4, 6), (5, 6), (6, 6), (7, 6)]
 captured_pieces_white = []
@@ -42,10 +40,6 @@ captured_pieces_black = []
 turn_step = 0
 selection = 100    
 valid_moves = []
-
-
-assert len(white_pieces) == len(white_locations), "Mismatch between white_pieces and white_locations"
-assert len(black_pieces) == len(black_locations), "Mismatch between black_pieces and black_locations"
 
 ### PART 3
 # load in game piece images 
@@ -113,16 +107,6 @@ counter = 0
 winner = ''
 game_over = False
 
-# Ensure pieces list contains only valid piece types
-for i, piece in enumerate(white_pieces):
-    if not isinstance(piece, str) or piece not in piece_list:
-        print(f"Fixing invalid piece in white_pieces at index {i}: {piece}")
-        white_pieces[i] = 'pawn'  # Default to a valid piece type
-
-for i, piece in enumerate(black_pieces):
-    if not isinstance(piece, str) or piece not in piece_list:
-        print(f"Fixing invalid piece in black_pieces at index {i}: {piece}")
-        black_pieces[i] = 'pawn'  # Default to a valid piece type
 ### PART 4 (updated)
 
 ### PART 4 (resizing with side panel)
@@ -177,158 +161,7 @@ piece_list = ['pawn', 'queen', 'king', 'knight', 'rook', 'bishop']
 counter = 0
 winner = ''
 game_over = False
-### PART 3
-# load in game piece images 
 
-black_queen = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\black queen.png')
-black_queen = pygame.transform.scale(black_queen, (80, 80))
-black_queen_small = pygame.transform.scale(black_queen, (45, 45))
-
-black_king = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\black king.png')
-black_king = pygame.transform.scale(black_king, (80, 80))
-black_king_small = pygame.transform.scale(black_king, (45, 45))
-
-black_bishop = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\black bishop.png')
-black_bishop = pygame.transform.scale(black_bishop, (80, 80))
-black_bishop_small = pygame.transform.scale(black_bishop, (45, 45))
-
-black_knight = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\black knight.png')
-black_knight = pygame.transform.scale(black_knight, (80, 80))
-black_knight_small = pygame.transform.scale(black_knight, (45, 45))
-
-black_rook = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\black rook.png')
-black_rook = pygame.transform.scale(black_rook, (80, 80))
-black_rook_small = pygame.transform.scale(black_rook, (45, 45))
-
-black_pawn = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\black pawn.png')
-black_pawn = pygame.transform.scale(black_pawn, (65, 65))
-black_pawn_small = pygame.transform.scale(black_pawn, (45, 45))
-
-white_queen = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\white queen.png')
-white_queen = pygame.transform.scale(white_queen, (80, 80))
-white_queen_small = pygame.transform.scale(white_queen, (45, 45))
-
-white_king = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\white king.png')
-white_king = pygame.transform.scale(white_king, (80, 80))
-white_king_small = pygame.transform.scale(white_king, (45, 45))
-
-white_bishop = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\white bishop.png')
-white_bishop = pygame.transform.scale(white_bishop, (80, 80))
-white_bishop_small = pygame.transform.scale(white_bishop, (45, 45))
-
-white_knight = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\white knight.png')
-white_knight = pygame.transform.scale(white_knight, (80, 80))
-white_knight_small = pygame.transform.scale(white_knight, (45, 45))
-
-white_rook = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\white rook.png')
-white_rook = pygame.transform.scale(white_rook, (80, 80))
-white_rook_small = pygame.transform.scale(white_rook, (45, 45))
-
-white_pawn = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\white pawn.png')
-white_pawn = pygame.transform.scale(white_pawn, (65, 65))
-white_pawn_small = pygame.transform.scale(white_pawn, (45, 45))
-
-white_images = [white_pawn, white_queen, white_king, white_knight, 
-white_rook, white_bishop]
-small_white_images = [white_pawn_small, white_queen_small, white_king_small, 
-white_knight_small, white_rook_small, white_bishop_small]
-black_images = [black_pawn, black_queen, black_king, black_knight, 
-black_rook, black_bishop]
-small_black_images = [black_pawn_small, black_queen_small, black_king_small, 
-black_knight_small, black_rook_small, black_bishop_small]
-
-piece_list = ['pawn', 'queen', 'king', 'knight', 'rook', 'bishop']
-
-counter = 0
-winner = ''
-game_over = False
-
-# Ensure pieces list contains only valid piece types
-for i, piece in enumerate(white_pieces):
-    if not isinstance(piece, str) or piece not in piece_list:
-        print(f"Fixing invalid piece in white_pieces at index {i}: {piece}")
-        white_pieces[i] = 'pawn'  # Default to a valid piece type
-
-for i, piece in enumerate(black_pieces):
-    if not isinstance(piece, str) or piece not in piece_list:
-        print(f"Fixing invalid piece in black_pieces at index {i}: {piece}")
-        black_pieces[i] = 'pawn'  # Default to a valid piece type
-### PART 3
-# load in game piece images 
-
-black_queen = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\black queen.png')
-black_queen = pygame.transform.scale(black_queen, (80, 80))
-black_queen_small = pygame.transform.scale(black_queen, (45, 45))
-
-black_king = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\black king.png')
-black_king = pygame.transform.scale(black_king, (80, 80))
-black_king_small = pygame.transform.scale(black_king, (45, 45))
-
-black_bishop = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\black bishop.png')
-black_bishop = pygame.transform.scale(black_bishop, (80, 80))
-black_bishop_small = pygame.transform.scale(black_bishop, (45, 45))
-
-black_knight = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\black knight.png')
-black_knight = pygame.transform.scale(black_knight, (80, 80))
-black_knight_small = pygame.transform.scale(black_knight, (45, 45))
-
-black_rook = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\black rook.png')
-black_rook = pygame.transform.scale(black_rook, (80, 80))
-black_rook_small = pygame.transform.scale(black_rook, (45, 45))
-
-black_pawn = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\black pawn.png')
-black_pawn = pygame.transform.scale(black_pawn, (65, 65))
-black_pawn_small = pygame.transform.scale(black_pawn, (45, 45))
-
-white_queen = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\white queen.png')
-white_queen = pygame.transform.scale(white_queen, (80, 80))
-white_queen_small = pygame.transform.scale(white_queen, (45, 45))
-
-white_king = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\white king.png')
-white_king = pygame.transform.scale(white_king, (80, 80))
-white_king_small = pygame.transform.scale(white_king, (45, 45))
-
-white_bishop = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\white bishop.png')
-white_bishop = pygame.transform.scale(white_bishop, (80, 80))
-white_bishop_small = pygame.transform.scale(white_bishop, (45, 45))
-
-white_knight = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\white knight.png')
-white_knight = pygame.transform.scale(white_knight, (80, 80))
-white_knight_small = pygame.transform.scale(white_knight, (45, 45))
-
-white_rook = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\white rook.png')
-white_rook = pygame.transform.scale(white_rook, (80, 80))
-white_rook_small = pygame.transform.scale(white_rook, (45, 45))
-
-white_pawn = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\white pawn.png')
-white_pawn = pygame.transform.scale(white_pawn, (65, 65))
-white_pawn_small = pygame.transform.scale(white_pawn, (45, 45))
-
-white_images = [white_pawn, white_queen, white_king, white_knight, 
-white_rook, white_bishop]
-small_white_images = [white_pawn_small, white_queen_small, white_king_small, 
-white_knight_small, white_rook_small, white_bishop_small]
-black_images = [black_pawn, black_queen, black_king, black_knight, 
-black_rook, black_bishop]
-small_black_images = [black_pawn_small, black_queen_small, black_king_small, 
-black_knight_small, black_rook_small, black_bishop_small]
-
-piece_list = ['pawn', 'queen', 'king', 'knight', 'rook', 'bishop']
-
-counter = 0
-winner = ''
-game_over = False
-
-# Ensure pieces list contains only valid piece types
-for i, piece in enumerate(white_pieces):
-    if not isinstance(piece, str) or piece not in piece_list:
-        print(f"Fixing invalid piece in white_pieces at index {i}: {piece}")
-        white_pieces[i] = 'pawn'  # Default to a valid piece type
-
-for i, piece in enumerate(black_pieces):
-    if not isinstance(piece, str) or piece not in piece_list:
-        print(f"Fixing invalid piece in black_pieces at index {i}: {piece}")
-        black_pieces[i] = 'pawn'  # Default to a valid piece type
 # draw main game board
 ### PART 5 drawing the pieces. 
 
@@ -343,9 +176,6 @@ def draw_pieces(square_size, piece_size, board_offset_x, board_offset_y):
             piece_image = pygame.transform.scale(white_images[index], (int(piece_size), int(piece_size)))
         screen.blit(piece_image, (board_offset_x + white_locations[i][0] * square_size + (square_size - piece_size) // 2,
                                   board_offset_y + white_locations[i][1] * square_size + (square_size - piece_size) // 2))
-    assert len(white_pieces) == len(white_locations), "Mismatch between white_pieces and white_locations"
-    assert len(black_pieces) == len(black_locations), "Mismatch between black_pieces and black_locations"
-
 
     # Draw black pieces
     for i in range(len(black_pieces)):
@@ -356,8 +186,6 @@ def draw_pieces(square_size, piece_size, board_offset_x, board_offset_y):
             piece_image = pygame.transform.scale(black_images[index], (int(piece_size), int(piece_size)))
         screen.blit(piece_image, (board_offset_x + black_locations[i][0] * square_size + (square_size - piece_size) // 2,
                                   board_offset_y + black_locations[i][1] * square_size + (square_size - piece_size) // 2))
-    assert len(white_pieces) == len(white_locations), "Mismatch between white_pieces and white_locations"
-    assert len(black_pieces) == len(black_locations), "Mismatch between black_pieces and black_locations"
 
     # Draw captured pieces (white and black) in the captured area
     draw_captured(square_size, piece_size, board_offset_x, board_offset_y, WIDTH, HEIGHT)
@@ -367,7 +195,7 @@ def draw_pieces(square_size, piece_size, board_offset_x, board_offset_y):
         valid_moves = check_valid_moves()  # This will return a list of valid moves
         for move in valid_moves:
             move_x, move_y = move
-            pygame.draw.circle(screen, 'purple', (board_offset_x + move_x * square_size + square_size // 2, 
+            pygame.draw.circle(screen, 'red', (board_offset_x + move_x * square_size + square_size // 2, 
                                                 board_offset_y + move_y * square_size + square_size // 2), piece_size // 6)
         
     if turn_step >= 2:  # Check if it's time to highlight the selected piece (based on your turn logic)
@@ -375,89 +203,14 @@ def draw_pieces(square_size, piece_size, board_offset_x, board_offset_y):
             pygame.draw.rect(screen, 'blue', [board_offset_x + white_locations[selection][0] * square_size + (square_size - piece_size) // 2,
                                               board_offset_y + white_locations[selection][1] * square_size + (square_size - piece_size) // 2,
                                               piece_size, piece_size], 2)
-### PART 3
-# load in game piece images 
-
-black_queen = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\black queen.png')
-black_queen = pygame.transform.scale(black_queen, (80, 80))
-black_queen_small = pygame.transform.scale(black_queen, (45, 45))
-
-black_king = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\black king.png')
-black_king = pygame.transform.scale(black_king, (80, 80))
-black_king_small = pygame.transform.scale(black_king, (45, 45))
-
-black_bishop = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\black bishop.png')
-black_bishop = pygame.transform.scale(black_bishop, (80, 80))
-black_bishop_small = pygame.transform.scale(black_bishop, (45, 45))
-
-black_knight = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\black knight.png')
-black_knight = pygame.transform.scale(black_knight, (80, 80))
-black_knight_small = pygame.transform.scale(black_knight, (45, 45))
-
-black_rook = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\black rook.png')
-black_rook = pygame.transform.scale(black_rook, (80, 80))
-black_rook_small = pygame.transform.scale(black_rook, (45, 45))
-
-black_pawn = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\black pawn.png')
-black_pawn = pygame.transform.scale(black_pawn, (65, 65))
-black_pawn_small = pygame.transform.scale(black_pawn, (45, 45))
-
-white_queen = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\white queen.png')
-white_queen = pygame.transform.scale(white_queen, (80, 80))
-white_queen_small = pygame.transform.scale(white_queen, (45, 45))
-
-white_king = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\white king.png')
-white_king = pygame.transform.scale(white_king, (80, 80))
-white_king_small = pygame.transform.scale(white_king, (45, 45))
-
-white_bishop = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\white bishop.png')
-white_bishop = pygame.transform.scale(white_bishop, (80, 80))
-white_bishop_small = pygame.transform.scale(white_bishop, (45, 45))
-
-white_knight = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\white knight.png')
-white_knight = pygame.transform.scale(white_knight, (80, 80))
-white_knight_small = pygame.transform.scale(white_knight, (45, 45))
-
-white_rook = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\white rook.png')
-white_rook = pygame.transform.scale(white_rook, (80, 80))
-white_rook_small = pygame.transform.scale(white_rook, (45, 45))
-
-white_pawn = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\white pawn.png')
-white_pawn = pygame.transform.scale(white_pawn, (65, 65))
-white_pawn_small = pygame.transform.scale(white_pawn, (45, 45))
-
-white_images = [white_pawn, white_queen, white_king, white_knight, 
-white_rook, white_bishop]
-small_white_images = [white_pawn_small, white_queen_small, white_king_small, 
-white_knight_small, white_rook_small, white_bishop_small]
-black_images = [black_pawn, black_queen, black_king, black_knight, 
-black_rook, black_bishop]
-small_black_images = [black_pawn_small, black_queen_small, black_king_small, 
-black_knight_small, black_rook_small, black_bishop_small]
-
-piece_list = ['pawn', 'queen', 'king', 'knight', 'rook', 'bishop']
-
-counter = 0
-winner = ''
-game_over = False
-
-# Ensure pieces list contains only valid piece types
-for i, piece in enumerate(white_pieces):
-    if not isinstance(piece, str) or piece not in piece_list:
-        print(f"Fixing invalid piece in white_pieces at index {i}: {piece}")
-        white_pieces[i] = 'pawn'  # Default to a valid piece type
-
-for i, piece in enumerate(black_pieces):
-    if not isinstance(piece, str) or piece not in piece_list:
-        print(f"Fixing invalid piece in black_pieces at index {i}: {piece}")
-        black_pieces[i] = 'pawn'  # Default to a valid piece type
 
 
 
 
 ### PART 6A
 # checking all valid pieces on the board
-def check_options(pieces, locations, turn, skip_check=False):
+def check_options(pieces, locations, turn):
+    moves_list = []
     all_moves_list = []
     for i in range(len(pieces)):
         location = locations[i]
@@ -474,25 +227,8 @@ def check_options(pieces, locations, turn, skip_check=False):
             moves_list = check_king(location, turn)
         elif piece == 'queen':
             moves_list = check_queen(location, turn)
-        else:
-            # Handle unexpected piece types
-            print(f"Warning: Invalid piece type '{piece}' encountered.")
-            moves_list = []  # Skip invalid pieces
-
-        # Filter moves that leave the king in check (only if skip_check is False)
-        if not skip_check:
-            filtered_moves = []
-            for move in moves_list:
-                # Simulate the move
-                original_position = locations[i]
-                locations[i] = move
-                if not is_king_in_check(turn):  # Check if the king is safe after the move
-                    filtered_moves.append(move)
-                locations[i] = original_position  # Undo the move
-            all_moves_list.append(filtered_moves)
-        else:
-            all_moves_list.append(moves_list)
-
+        all_moves_list.append(moves_list)
+    print(f"{turn.capitalize()} Options: {all_moves_list}")  # Debug print
     return all_moves_list
 
 ### PART 6B
@@ -502,13 +238,9 @@ def check_king(position, color):
     if color == 'white':
         friends_list = white_locations
         enemies_list = black_locations
-        enemy_pieces = black_pieces
     else:
         friends_list = black_locations
         enemies_list = white_locations
-        enemy_pieces = white_pieces
-    assert len(white_pieces) == len(white_locations), "Mismatch between white_pieces and white_locations"
-    assert len(black_pieces) == len(black_locations), "Mismatch between black_pieces and black_locations"
 
     # 8 possible moves for the king
     targets = [(1, 0), (1, 1), (1, -1), (-1, 0), (-1, 1), (-1, -1), (0, 1), (0, -1)]
@@ -518,28 +250,9 @@ def check_king(position, color):
 
     # Filter out moves that place the king in danger
     enemy_moves = [move for moves in check_options(enemies_list, black_locations if color == 'white' else white_locations, 'black' if color == 'white' else 'white') for move in moves]
-    safe_moves = [move for move in moves_list if move not in enemy_moves]
+    moves_list = [move for move in moves_list if move not in enemy_moves]
 
-    # Prioritize capturing an attacking piece if it's safe
-    capture_moves = []
-    for move in safe_moves:
-        if move in enemies_list:
-            enemy_index = enemies_list.index(move)
-            enemy_piece = enemy_pieces[enemy_index]
-            # Simulate capturing the piece and check if the king remains safe
-            original_position = position
-            original_enemy_position = enemies_list[enemy_index]
-            enemies_list[enemy_index] = (-1, -1)  # Temporarily remove the enemy piece
-            if move not in [m for moves in check_options(enemies_list, black_locations if color == 'white' else white_locations, 'black' if color == 'white' else 'white') for m in moves]:
-                capture_moves.append(move)
-            enemies_list[enemy_index] = original_enemy_position  # Restore the enemy piece
-
-    # If there are safe capture moves, prioritize them
-    if capture_moves:
-        return capture_moves
-
-    # Otherwise, return safe moves
-    return safe_moves
+    return moves_list
 
 ### PART 6C
 # check queen valid moves
@@ -680,89 +393,20 @@ def check_knight(position, color):
     return moves_list
 
 ### PART 6H AI MINIMAX
-
-def is_king_in_check(turn):
-    if turn == 'white':
-        if 'king' not in white_pieces:
-            return False  # King is already captured
-        king_index = white_pieces.index('king')
-        king_location = white_locations[king_index]
-        enemy_moves = [move for moves in check_options(black_pieces, black_locations, 'black', skip_check=True) for move in moves]
-        assert len(white_pieces) == len(white_locations), "Mismatch between white_pieces and white_locations"
-        assert len(black_pieces) == len(black_locations), "Mismatch between black_pieces and black_locations"
-    
-    else:
-        if 'king' not in black_pieces:
-            return False  # King is already captured
-        king_index = black_pieces.index('king')
-        king_location = black_locations[king_index]
-        enemy_moves = [move for moves in check_options(white_pieces, white_locations, 'white', skip_check=True) for move in moves]
-    
-    assert len(white_pieces) == len(white_locations), "Mismatch between white_pieces and white_locations"
-    assert len(black_pieces) == len(black_locations), "Mismatch between black_pieces and black_locations"
-    
-    return king_location in enemy_moves
-
-# Other functions like game_is_over, evaluate_board, and minimax follow here
-
 def game_is_over():
-    global winner
-
-    # Check if White's king is captured
     if 'king' not in white_pieces:
         print("Black wins!")
-        winner = 'black'
         return True
-    assert len(white_pieces) == len(white_locations), "Mismatch between white_pieces and white_locations"
-    assert len(black_pieces) == len(black_locations), "Mismatch between black_pieces and black_locations"
-
-    # Check if Black's king is captured
     if 'king' not in black_pieces:
         print("White wins!")
-        winner = 'white'
-        assert len(white_pieces) == len(white_locations), "Mismatch between white_pieces and white_locations"
-        assert len(black_pieces) == len(black_locations), "Mismatch between black_pieces and black_locations"
         return True
-
-    # Check for stalemate (no valid moves for either side)
     if not any(black_options) and not any(move for moves in white_options for move in moves):
         print("Stalemate!")
-        winner = 'stalemate'
         return True
-
-    # Check for checkmate
-    if turn_step < 2:  # White's turn
-        if 'king' in white_pieces:
-            assert len(white_pieces) == len(white_locations), "Mismatch between white_pieces and white_locations"
-            assert len(black_pieces) == len(black_locations), "Mismatch between black_pieces and black_locations"
-            king_index = white_pieces.index('king')
-            king_location = white_locations[king_index]
-            # Check if the king is in check
-            if any(king_location in moves for moves in black_options):
-                # Check if White has any valid moves to escape
-                if not any(move for moves in white_options for move in moves):
-                    print("Checkmate! Black wins!")
-                    winner = 'black'
-            assert len(white_pieces) == len(white_locations), "Mismatch between white_pieces and white_locations"
-            assert len(black_pieces) == len(black_locations), "Mismatch between black_pieces and black_locations"
-        return True
-
-    else:  # Black's turn
-        if 'king' in black_pieces:
-            king_index = black_pieces.index('king')
-            king_location = black_locations[king_index]
-            # Check if the king is in check
-            if any(king_location in moves for moves in white_options):
-                # Check if Black has any valid moves to escape
-                if not any(move for moves in black_options for move in moves):
-                    print("Checkmate! White wins!")
-                    winner = 'white'
-                    return True
-
     return False
 
 def evaluate_board():
-    piece_values = {'pawn': 2, 'knight': 10, 'bishop': 20, 'rook': 50, 'queen': 500, 'king': 1000}
+    piece_values = {'pawn': 1.5, 'knight': 3, 'bishop': 3, 'rook': 5, 'queen': 9, 'king': 1000}
     center_squares = [(3, 3), (3, 4), (4, 3), (4, 4)]
     white_score = 0
     black_score = 0
@@ -794,8 +438,6 @@ def evaluate_board():
         white_king_location = white_locations[white_king_index]
         if any(white_king_location in moves for moves in black_options):
             black_score += 200  # Reward threatening the opponent's king
-    assert len(white_pieces) == len(white_locations), "Mismatch between white_pieces and white_locations"
-    assert len(black_pieces) == len(black_locations), "Mismatch between black_pieces and black_locations"
 
     # Control of the center
     white_score += sum(0.5 for loc in white_locations if loc in center_squares)
@@ -810,13 +452,47 @@ def evaluate_board():
     black_pawn_columns = [loc[0] for loc in black_locations if black_pieces[black_locations.index(loc)] == 'pawn']
     white_score -= sum(0.2 for col in white_pawn_columns if white_pawn_columns.count(col) > 1)  # Penalize doubled pawns
     black_score -= sum(0.2 for col in black_pawn_columns if black_pawn_columns.count(col) > 1)  # Penalize doubled pawns
-    assert len(white_pieces) == len(white_locations), "Mismatch between white_pieces and white_locations"
-    assert len(black_pieces) == len(black_locations), "Mismatch between black_pieces and black_locations"
+
     return white_score - black_score
 
 visited_states = set()
 
-MAX_DEPTH = 3  # Adjust this value as needed for performance vs. decision quality
+MAX_DEPTH = 2  # Adjust this value as needed for performance vs. decision quality
+
+def move_heuristic(move, piece, is_maximizing):
+    """
+    Assign a score to a move based on its potential value.
+    """
+    score = 0
+
+    # Capturing opponent's pieces
+    if is_maximizing:
+        if move in black_locations:
+            captured_piece = black_pieces[black_locations.index(move)]
+            piece_values = {'pawn': 1.5, 'knight': 3, 'bishop': 3, 'rook': 5, 'queen': 9, 'king': 1000}
+            score += piece_values[captured_piece]
+    else:
+        if move in white_locations:
+            captured_piece = white_pieces[white_locations.index(move)]
+            piece_values = {'pawn': 1.5, 'knight': 3, 'bishop': 3, 'rook': 5, 'queen': 9, 'king': 1000}
+            score += piece_values[captured_piece]
+
+    # Control of the center
+    center_squares = [(3, 3), (3, 4), (4, 3), (4, 4)]
+    if move in center_squares:
+        score += 0.5
+
+    # Threatening the opponent's king
+    if is_maximizing and 'king' in black_pieces:
+        black_king_location = black_locations[black_pieces.index('king')]
+        if move == black_king_location:
+            score += 10
+    elif not is_maximizing and 'king' in white_pieces:
+        white_king_location = white_locations[white_pieces.index('king')]
+        if move == white_king_location:
+            score += 10
+
+    return score
 
 def minimax(depth, is_maximizing, alpha=float('-inf'), beta=float('inf')):
     # Stop recursion if depth limit is reached or the game is over
@@ -829,6 +505,10 @@ def minimax(depth, is_maximizing, alpha=float('-inf'), beta=float('inf')):
         for i, moves in enumerate(white_options):
             if not moves:
                 continue
+
+            # Sort moves based on heuristic
+            moves.sort(key=lambda move: move_heuristic(move, white_pieces[i], is_maximizing), reverse=True)
+
             for move in moves:
                 # Simulate move
                 original_position = white_locations[i]
@@ -840,6 +520,7 @@ def minimax(depth, is_maximizing, alpha=float('-inf'), beta=float('inf')):
                     best_move = (i, move)
                 alpha = max(alpha, eval)
                 if beta <= alpha:
+                    print(f"Pruning branch at depth {depth} for maximizing player.")
                     break  # Prune the branch
         return max_eval, best_move
 
@@ -849,6 +530,10 @@ def minimax(depth, is_maximizing, alpha=float('-inf'), beta=float('inf')):
         for i, moves in enumerate(black_options):
             if not moves:
                 continue
+
+            # Sort moves based on heuristic
+            moves.sort(key=lambda move: move_heuristic(move, black_pieces[i], is_maximizing), reverse=True)
+
             for move in moves:
                 # Simulate move
                 original_position = black_locations[i]
@@ -860,9 +545,9 @@ def minimax(depth, is_maximizing, alpha=float('-inf'), beta=float('inf')):
                     best_move = (i, move)
                 beta = min(beta, eval)
                 if beta <= alpha:
+                    print(f"Pruning branch at depth {depth} for minimizing player.")
                     break  # Prune the branch
         return min_eval, best_move
-    
 ### PART 7
 # check for valid moves for just selected piece
 def check_valid_moves():
@@ -875,13 +560,13 @@ def check_valid_moves():
 
 ### PART 8 (updated) - draw_valid function
 def draw_valid(valid_moves, square_size, board_offset_x, board_offset_y):
+    # Loop through each valid move and draw a circle at the correct position
     for move in valid_moves:
         move_x, move_y = move
-        x = board_offset_x + move_x * square_size + square_size // 2
-        y = board_offset_y + move_y * square_size + square_size // 2
-        print(f"Drawing dot at ({x}, {y}) as a single pixel")  # Debug print
-        pygame.draw.rect(screen, 'purple', (x, y, 1, 1))  # Draw a single pixel
-        
+        # Adjust position based on the new offsets and size, ensuring the circle appears centered in the square
+        pygame.draw.circle(screen, 'red', 
+                           (board_offset_x + move_x * square_size + square_size // 2, 
+                            board_offset_y + move_y * square_size + square_size // 2), square_size // 12)
 
 
 
@@ -923,12 +608,8 @@ def draw_captured(square_size, piece_size, board_offset_x, board_offset_y, WIDTH
 def draw_check(square_size, board_offset_x, board_offset_y):
     if turn_step < 2:
         if 'king' in white_pieces:
-            assert len(white_pieces) == len(white_locations), "Mismatch between white_pieces and white_locations"
-            assert len(black_pieces) == len(black_locations), "Mismatch between black_pieces and black_locations"
             king_index = white_pieces.index('king')
             king_location = white_locations[king_index]
-            assert len(white_pieces) == len(white_locations), "Mismatch between white_pieces and white_locations"
-            assert len(black_pieces) == len(black_locations), "Mismatch between black_pieces and black_locations"
             for i in range(len(black_options)):
                 if king_location in black_options[i]:
                     if counter < 15:
@@ -953,22 +634,8 @@ def draw_game_over():
     screen.blit(font.render(f'Press ENTER to Restart!', True, 'white'), (210, 240))
 
 
-assert all(isinstance(piece, str) for piece in white_pieces), "white_pieces contains invalid data!"
-assert all(isinstance(piece, str) for piece in black_pieces), "black_pieces contains invalid data!"
-
-# Define the update_options function
-def update_options():
-    global black_options, white_options
-    black_options = check_options(black_pieces, black_locations, 'black')
-    white_options = check_options(white_pieces, white_locations, 'white')
-
-# Initialize options
-update_options()
-print(f"Black options: {black_options}")
-print(f"White options: {white_options}")
-
-assert len(white_pieces) == len(white_locations), "Mismatch between white_pieces and white_locations"
-assert len(black_pieces) == len(black_locations), "Mismatch between black_pieces and black_locations"
+black_options = check_options(black_pieces, black_locations, 'black')
+white_options = check_options(white_pieces, white_locations, 'white')
 
 ### PART 11: the main game loop
 # Initial definitions outside the loop
@@ -978,10 +645,10 @@ piece_size = square_size * 0.8
 board_offset_x = 0
 board_offset_y = (HEIGHT - 100 - (square_size * 8)) // 2
 
+highlight_squares = []  # Stores the start and end squares to highlight
+
 run = True
 while run:
-    assert all(isinstance(piece, str) for piece in white_pieces), "white_pieces contains invalid data!"
-    assert all(isinstance(piece, str) for piece in black_pieces), "black_pieces contains invalid data!"
     timer.tick(fps)
 
     for event in pygame.event.get():
@@ -1020,139 +687,80 @@ while run:
                 y_coord = (mouse_y - board_offset_y) // square_size
                 click_coords = (int(x_coord), int(y_coord))
 
-                if turn_step <= 1:  # White's turn
+                if turn_step <= 1:
                     if click_coords in white_locations:
                         selection = white_locations.index(click_coords)
                         if turn_step == 0:
                             turn_step = 1
                     if click_coords in valid_moves and selection != 100:
                         white_locations[selection] = click_coords
+                        highlight_squares = []  # Clear the highlights
                         if click_coords in black_locations:
-                            captured_index = black_locations.index(click_coords)
-                            captured_pieces_white.append(black_pieces[captured_index])
-                            black_pieces.pop(captured_index)
-                            black_locations.pop(captured_index)            
-                            if black_pieces[captured_index] == 'king':
-                                winner = 'white'  # End the game if the king is captured
-                        # Ensure pieces list contains only valid piece types
-                        for i, piece in enumerate(white_pieces):
-                            if not isinstance(piece, str) or piece not in piece_list:
-                                print(f"Fixing invalid piece in white_pieces at index {i}: {piece}")
-                                white_pieces[i] = 'pawn'  # Default to a valid piece type
+                            black_piece = black_locations.index(click_coords)
+                            captured_pieces_white.append(black_pieces[black_piece])
+                            if black_pieces[black_piece] == 'king':
+                                winner = 'white'
+                            black_pieces.pop(black_piece)
+                            black_locations.pop(black_piece)
 
-                        for i, piece in enumerate(black_pieces):
-                            if not isinstance(piece, str) or piece not in piece_list:
-                                print(f"Fixing invalid piece in black_pieces at index {i}: {piece}")
-                                black_pieces[i] = 'pawn'  # Default to a valid piece type
-
-                        # Handle pawn promotion
+                        # **Pawn Promotion for White**
                         for i, loc in enumerate(white_locations):
                             if white_pieces[i] == 'pawn' and loc[1] == 7:  # Reached the last rank
                                 white_pieces[i] = 'queen'  # Promote to a queen
+                                print(f"White pawn at {loc} promoted to a queen!")
 
-                        # Recalculate options after the board state changes
-                        update_options()
-                        print(f"Black options: {black_options}")
-                        print(f"White options: {white_options}")
-
-                        # Switch to Black's turn
+                        black_options = check_options(black_pieces, black_locations, 'black')
+                        white_options = check_options(white_pieces, white_locations, 'white')
                         turn_step = 2
                         selection = 100
                         valid_moves = []
-
-                        # Debug final state
-                        print(f"White pieces: {white_pieces}")
-                        print(f"White locations: {white_locations}")
-                        print(f"Black pieces: {black_pieces}")
-                        print(f"Black locations: {black_locations}")
-                        assert len(white_pieces) == len(white_locations), "Mismatch between white_pieces and white_locations"
-                        assert len(black_pieces) == len(black_locations), "Mismatch between black_pieces and black_locations"
-
-                else:  # Black's turn
-                    if turn_step == 2:
+                else:
+                    if turn_step == 2:  # Black's turn
                         print(f"Black Options Before Move: {black_options}")  # Debug print
                         print("Black's turn: Calling minimax...")
                         _, best_move = minimax(depth=0, is_maximizing=False)  # Start depth at 0
                         print(f"Best move for Black: {best_move}")
                         if best_move:
                             piece_index, move = best_move
+                            start_pos = black_locations[piece_index]  # Save the starting position
                             black_locations[piece_index] = move
-                            # Ensure the piece type remains correct
-                            black_pieces[piece_index] = black_pieces[piece_index]  # Keep the piece type unchanged
+                            
+                            highlight_squares = [start_pos, move]
                             if move in white_locations:  # Capture
                                 captured_index = white_locations.index(move)
                                 captured_pieces_black.append(white_pieces[captured_index])
                                 if white_pieces[captured_index] == 'king':
-                                    winner = 'black'  # End the game if the king is captured
+                                    winner = 'black'
                                 white_pieces.pop(captured_index)
                                 white_locations.pop(captured_index)
 
-                            # Handle pawn promotion for Black
+                            # **Pawn Promotion for Black**
                             for i, loc in enumerate(black_locations):
                                 if black_pieces[i] == 'pawn' and loc[1] == 0:  # Reached the last rank
                                     black_pieces[i] = 'queen'  # Promote to a queen
+                                    print(f"Black pawn at {loc} promoted to a queen!")
 
-                            # Recalculate options after the move
-                            update_options()
-                            print(f"Black options: {black_options}")
-                            print(f"White options: {white_options}")
-
-                            # Switch to White's turn
-                            turn_step = 0
+                            # Update options after the move
+                            black_options = check_options(black_pieces, black_locations, 'black')
+                            white_options = check_options(white_pieces, white_locations, 'white')
+                            turn_step = 0  # Switch to White's turn
                         else:
                             print("No valid moves for Black.")
                             turn_step = 0  # Ensure the game doesn't get stuck
                     if click_coords in valid_moves and selection != 100:
-                        # Update the location of the selected piece
                         black_locations[selection] = click_coords
-
-                        # Handle capturing a white piece
                         if click_coords in white_locations:
-                            captured_index = white_locations.index(click_coords)
-                            captured_pieces_black.append(white_pieces[captured_index])  # Add captured piece
-                            white_pieces.pop(captured_index)  # Remove captured piece type
-                            white_locations.pop(captured_index)  # Remove captured piece position
-                            # Ensure pieces list contains only valid piece types
-                            for i, piece in enumerate(white_pieces):
-                                if not isinstance(piece, str) or piece not in piece_list:
-                                    print(f"Fixing invalid piece in white_pieces at index {i}: {piece}")
-                                    white_pieces[i] = 'pawn'  # Default to a valid piece type
-
-                            for i, piece in enumerate(black_pieces):
-                                if not isinstance(piece, str) or piece not in piece_list:
-                                    print(f"Fixing invalid piece in black_pieces at index {i}: {piece}")
-                                    black_pieces[i] = 'pawn'  # Default to a valid piece type
-
-                        # Ensure data integrity
-                        assert all(isinstance(piece, str) for piece in white_pieces), "white_pieces contains invalid data!"
-                        assert all(isinstance(piece, str) for piece in black_pieces), "black_pieces contains invalid data!"
-
-                        # Handle pawn promotion for Black
-                        for i, loc in enumerate(black_locations):
-                            if black_pieces[i] == 'pawn' and loc[1] == 0:  # Reached the last rank
-                                black_pieces[i] = 'queen'  # Promote to a queen
-
-                        # Recalculate options after the board state changes
-                        update_options()
-
-                        # Debug and validate
-                        print(f"Black options: {black_options}")
-                        print(f"White options: {white_options}")
-                        print(f"White pieces: {white_pieces}")
-                        print(f"White locations: {white_locations}")
-                        print(f"Black pieces: {black_pieces}")
-                        print(f"Black locations: {black_locations}")
-                        assert len(white_pieces) == len(white_locations), "Mismatch between white_pieces and white_locations"
-                        assert len(black_pieces) == len(black_locations), "Mismatch between black_pieces and black_locations"
-
-                        # Switch to White's turn
+                            white_piece = white_locations.index(click_coords)
+                            captured_pieces_black.append(white_pieces[white_piece])
+                            if white_pieces[white_piece] == 'king':
+                                winner = 'black'
+                            white_pieces.pop(white_piece)
+                            white_locations.pop(white_piece)
+                        black_options = check_options(black_pieces, black_locations, 'black')
+                        white_options = check_options(white_pieces, white_locations, 'white')
                         turn_step = 0
                         selection = 100
-                        valid_moves = []                        
-                        print(f"White pieces: {white_pieces}")
-                        print(f"White locations: {white_locations}")
-                        print(f"Black pieces: {black_pieces}")
-                        print(f"Black locations: {black_locations}")
+                        valid_moves = []
 
         elif event.type == pygame.KEYDOWN and game_over:
             if event.key == pygame.K_RETURN:
@@ -1166,37 +774,30 @@ while run:
                                 'pawn', 'pawn', 'pawn', 'pawn', 'pawn', 'pawn', 'pawn', 'pawn']
                 black_locations = [(0, 7), (1, 7), (2, 7), (3, 7), (4, 7), (5, 7), (6, 7), (7, 7),
                                    (0, 6), (1, 6), (2, 6), (3, 6), (4, 6), (5, 6), (6, 6), (7, 6)]
-                assert len(white_pieces) == len(white_locations), "Mismatch between white_pieces and white_locations"
-                assert len(black_pieces) == len(black_locations), "Mismatch between black_pieces and black_locations"
                 captured_pieces_white = []
                 captured_pieces_black = []
                 turn_step = 0
                 selection = 100
                 valid_moves = []
-                    # Debug print to check the reset state
-                print(f"Game Reset: \nWhite Pieces: {white_pieces}\nWhite Locations: {white_locations}\n"
-                      f"Black Pieces: {black_pieces}\nBlack Locations: {black_locations}")
-                update_options()
-
-                print(f"Black options: {black_options}")
-                print(f"White options: {white_options}")
-                assert all(isinstance(piece, str) for piece in white_pieces), "white_pieces contains invalid data!"
-                assert all(isinstance(piece, str) for piece in black_pieces), "black_pieces contains invalid data!"
-
-                assert len(white_pieces) == len(white_locations), "Mismatch between white_pieces and white_locations"
-                assert len(black_pieces) == len(black_locations), "Mismatch between black_pieces and black_locations"
+                black_options = check_options(black_pieces, black_locations, 'black')
+                white_options = check_options(white_pieces, white_locations, 'white')
 
     screen.fill('dark green')
     draw_board(square_size, board_offset_x, board_offset_y, WIDTH, HEIGHT, turn_step)
     draw_pieces(square_size, piece_size, board_offset_x, board_offset_y)
     draw_captured(square_size, piece_size, board_offset_x, board_offset_y, WIDTH, HEIGHT)
     draw_check(square_size, board_offset_x, board_offset_y)
-
+    
+        # Step 2: Draw highlights
+    if highlight_squares:
+        for square in highlight_squares:
+            x = board_offset_x + square[0] * square_size  # Top-left corner of the square
+            y = board_offset_y + square[1] * square_size  # Top-left corner of the square
+            pygame.draw.rect(screen, 'yellow', [x + 1, y + 1, square_size - 2, square_size - 2], 2)  # Adjust for all sides
+            
     if selection != 100:
         valid_moves = check_valid_moves()
         draw_valid(valid_moves, square_size, board_offset_x, board_offset_y)
-
-
 
     if winner != '':
         game_over = True

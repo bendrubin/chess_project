@@ -375,85 +375,6 @@ def draw_pieces(square_size, piece_size, board_offset_x, board_offset_y):
             pygame.draw.rect(screen, 'blue', [board_offset_x + white_locations[selection][0] * square_size + (square_size - piece_size) // 2,
                                               board_offset_y + white_locations[selection][1] * square_size + (square_size - piece_size) // 2,
                                               piece_size, piece_size], 2)
-### PART 3
-# load in game piece images 
-
-black_queen = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\black queen.png')
-black_queen = pygame.transform.scale(black_queen, (80, 80))
-black_queen_small = pygame.transform.scale(black_queen, (45, 45))
-
-black_king = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\black king.png')
-black_king = pygame.transform.scale(black_king, (80, 80))
-black_king_small = pygame.transform.scale(black_king, (45, 45))
-
-black_bishop = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\black bishop.png')
-black_bishop = pygame.transform.scale(black_bishop, (80, 80))
-black_bishop_small = pygame.transform.scale(black_bishop, (45, 45))
-
-black_knight = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\black knight.png')
-black_knight = pygame.transform.scale(black_knight, (80, 80))
-black_knight_small = pygame.transform.scale(black_knight, (45, 45))
-
-black_rook = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\black rook.png')
-black_rook = pygame.transform.scale(black_rook, (80, 80))
-black_rook_small = pygame.transform.scale(black_rook, (45, 45))
-
-black_pawn = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\black pawn.png')
-black_pawn = pygame.transform.scale(black_pawn, (65, 65))
-black_pawn_small = pygame.transform.scale(black_pawn, (45, 45))
-
-white_queen = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\white queen.png')
-white_queen = pygame.transform.scale(white_queen, (80, 80))
-white_queen_small = pygame.transform.scale(white_queen, (45, 45))
-
-white_king = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\white king.png')
-white_king = pygame.transform.scale(white_king, (80, 80))
-white_king_small = pygame.transform.scale(white_king, (45, 45))
-
-white_bishop = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\white bishop.png')
-white_bishop = pygame.transform.scale(white_bishop, (80, 80))
-white_bishop_small = pygame.transform.scale(white_bishop, (45, 45))
-
-white_knight = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\white knight.png')
-white_knight = pygame.transform.scale(white_knight, (80, 80))
-white_knight_small = pygame.transform.scale(white_knight, (45, 45))
-
-white_rook = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\white rook.png')
-white_rook = pygame.transform.scale(white_rook, (80, 80))
-white_rook_small = pygame.transform.scale(white_rook, (45, 45))
-
-white_pawn = pygame.image.load(r'C:\Users\benjy\OneDrive\Desktop\py_pro\white pawn.png')
-white_pawn = pygame.transform.scale(white_pawn, (65, 65))
-white_pawn_small = pygame.transform.scale(white_pawn, (45, 45))
-
-white_images = [white_pawn, white_queen, white_king, white_knight, 
-white_rook, white_bishop]
-small_white_images = [white_pawn_small, white_queen_small, white_king_small, 
-white_knight_small, white_rook_small, white_bishop_small]
-black_images = [black_pawn, black_queen, black_king, black_knight, 
-black_rook, black_bishop]
-small_black_images = [black_pawn_small, black_queen_small, black_king_small, 
-black_knight_small, black_rook_small, black_bishop_small]
-
-piece_list = ['pawn', 'queen', 'king', 'knight', 'rook', 'bishop']
-
-counter = 0
-winner = ''
-game_over = False
-
-# Ensure pieces list contains only valid piece types
-for i, piece in enumerate(white_pieces):
-    if not isinstance(piece, str) or piece not in piece_list:
-        print(f"Fixing invalid piece in white_pieces at index {i}: {piece}")
-        white_pieces[i] = 'pawn'  # Default to a valid piece type
-
-for i, piece in enumerate(black_pieces):
-    if not isinstance(piece, str) or piece not in piece_list:
-        print(f"Fixing invalid piece in black_pieces at index {i}: {piece}")
-        black_pieces[i] = 'pawn'  # Default to a valid piece type
-
-
-
 
 ### PART 6A
 # checking all valid pieces on the board
@@ -875,6 +796,8 @@ def check_valid_moves():
 
 ### PART 8 (updated) - draw_valid function
 def draw_valid(valid_moves, square_size, board_offset_x, board_offset_y):
+    if not valid_moves:  # Ensure valid_moves is not empty
+        return
     for move in valid_moves:
         move_x, move_y = move
         x = board_offset_x + move_x * square_size + square_size // 2
@@ -1005,6 +928,21 @@ while run:
 
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and not game_over:
             mouse_x, mouse_y = event.pos
+            x_coord = (mouse_x - board_offset_x) // square_size
+            y_coord = (mouse_y - board_offset_y) // square_size
+            click_coords = (int(x_coord), int(y_coord))
+
+            if turn_step <= 1:  # White's turn
+                if click_coords in white_locations:
+                    selection = white_locations.index(click_coords)
+                    if turn_step == 0:
+                        turn_step = 1
+                elif click_coords in valid_moves and selection != 100:
+                    white_locations[selection] = click_coords
+                    valid_moves = []
+                    selection = 100
+                    turn_step = 2  # Switch to Black's turn
+                    update_options()
 
             forfeit_width = square_size * 2
             forfeit_height = square_size // 1.5
@@ -1193,9 +1131,13 @@ while run:
     draw_check(square_size, board_offset_x, board_offset_y)
 
     if selection != 100:
-        valid_moves = check_valid_moves()
-        draw_valid(valid_moves, square_size, board_offset_x, board_offset_y)
-
+        valid_moves = check_valid_moves()  # Always recalculate valid moves
+        if click_coords in valid_moves:  # Handle move completion
+            white_locations[selection] = click_coords
+            valid_moves = []  # Clear valid moves
+            selection = 100  # Reset selection after move
+            turn_step = 2  # Switch to Black's turn
+            update_options()  # Recalculate valid moves
 
 
     if winner != '':
